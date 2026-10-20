@@ -1,1 +1,1 @@
-precisamos saber se usaremos java swing ou não
+Utilizar JAVAFX
