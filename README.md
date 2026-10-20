@@ -15,7 +15,7 @@ O repositório ainda não compila, então a Fase 1 começa corrigindo a estrutur
 
 - [X] **Gustavo** — Tirar as pastas de dentro de `src/starmaster/Main/` e deixá-las direto em `src/starmaster/`. O caminho da pasta precisa bater com o `package` de cada classe.
 - [X] **Gustavo** — Renomear `main.java` para `Main.java` e a pasta `Interfaces` para `interfaces` (pacotes ficam em minúsculo).
-- [ ] **Gustavo** — Corrigir os imports do JavaFX na `Main`, porque `import java.fx.naosei` não existe, e definir as constantes `PIXEIS_X` e `PIXEIS_Y`.
+- [X] **Gustavo** — Corrigir os imports do JavaFX na `Main`, porque `import java.fx.naosei` não existe, e definir as constantes `PIXEIS_X` e `PIXEIS_Y`.
 - [ ] **Gustavo** — Subir o `.project` e o `.classpath` do Eclipse, para os colegas importarem o projeto direto. Todos devem dar o nome `JavaFX` para a User Library.
 - [ ] **Gustavo** — Adicionar Eduardo, Luís e Ulisses como colaboradores (Settings > Collaborators).
 - [ ] **Ulisses** — Criar o `.gitignore` com `bin/` e mover o `StarMaster.png` para uma pasta `docs/`, fora do `src`.
