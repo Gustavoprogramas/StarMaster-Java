@@ -12,7 +12,7 @@ public class Main extends Application {
     raiz.setStyle("-fx-background-color: black;");
     palco.setTitle("StarMaster");
     palco.setScene(new Scene(raiz, PIXEIS_X, PIXEIS_Y)); //pixeis x e y sao a resolução vamos discutir isso depois.
-    palco.setResizable(false); // nao pode ser redimensionado pelo usuário
+    palco.setResizable(false); // auto-explicativo
     palco.show();
     // gerenciador jogo jogo = new gerenciadorjogo();
     //jogo.inicarJogo();
