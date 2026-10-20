@@ -14,7 +14,7 @@ As fases abaixo seguem a ordem de dependência: uma classe só é feita depois d
 O repositório ainda não compila, então a Fase 1 começa corrigindo a estrutura. Os outros só começam a programar depois que o Gustavo subir essa correção, para evitar conflitos.
 
 - [X] **Gustavo** — Tirar as pastas de dentro de `src/starmaster/Main/` e deixá-las direto em `src/starmaster/`. O caminho da pasta precisa bater com o `package` de cada classe.
-- [ ] **Gustavo** — Renomear `main.java` para `Main.java` e a pasta `Interfaces` para `interfaces` (pacotes ficam em minúsculo).
+- [X] **Gustavo** — Renomear `main.java` para `Main.java` e a pasta `Interfaces` para `interfaces` (pacotes ficam em minúsculo).
 - [ ] **Gustavo** — Corrigir os imports do JavaFX na `Main`, porque `import java.fx.naosei` não existe, e definir as constantes `PIXEIS_X` e `PIXEIS_Y`.
 - [ ] **Gustavo** — Subir o `.project` e o `.classpath` do Eclipse, para os colegas importarem o projeto direto. Todos devem dar o nome `JavaFX` para a User Library.
 - [ ] **Gustavo** — Adicionar Eduardo, Luís e Ulisses como colaboradores (Settings > Collaborators).
