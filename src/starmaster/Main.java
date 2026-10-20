@@ -17,6 +17,8 @@ public class Main extends Application {
     StackPane raiz = new StackPane(titulo);
     raiz.setStyle("-fx-background-color: black;");
     palco.setTitle("StarMaster");
+    int PIXEIS_X = 800;
+    int PIXEIS_Y = 600;
     palco.setScene(new Scene(raiz, PIXEIS_X, PIXEIS_Y)); //pixeis x e y sao a resolução vamos discutir isso depois.
     palco.setResizable(false); // auto-explicativo
     palco.show();
