@@ -1,5 +1,6 @@
 package starmaster.entidades;
 import starmaster.mapa.Setor;
+import java.math.*;
 
 public class NaveJogador extends Nave {
   public static final int ENERGIA_MAXIMA = 1000;
@@ -18,6 +19,7 @@ public class NaveJogador extends Nave {
   private boolean naBase;
   private double direcao;
   private int fps;
+  private int max_fps = 
 
   public NaveJogador(Setor setorInicial) {
     super(0,0,0, ESCUDO_MAXIMO, VELOCIDADE, PODER_DE_FOGO);
@@ -34,13 +36,18 @@ public class NaveJogador extends Nave {
       return null;
     }
     consumirEnergia(CUSTO_TIRO);
-    double vx = seno * direcao * VELOCIDADE_TIRO;
+    double vx = Math.sin(direcao) * VELOCIDADE_TIRO; 
 
-    double vz = cosseno * direcao * VELOCIDADE_TIRO
-    return new Projetil(x,y,z,vx,vz,poderDeFogo, ALCANCE_TIRO);
+    double vz = Math.cos(direcao) * VELOCIDADE_TIRO;
+    return new Projetil(x, y, z, vx, vz, poderDeFogo, ALCANCE_TIRO);
     
   }
-  //public void girar
+  public void girar(double angulo){
+    direcao = (direcao + angulo) % 360;
+    if (direcao < 0) {
+        direcao += 360;
+    }
+  }
   //public boolean viajarParaSucesso
   //public void naBase
   //public void sairBase
@@ -49,10 +56,20 @@ public class NaveJogador extends Nave {
     energia = energiaMaxima;
     escudo = escudoMaximo;
   }
-  //public void receberDano
-  //public void atualizar
+  public void receberDano(int quantidade) {
+    super.receberDano(quantidade);
+    consumirEnergia(quantidade/2);
+  }
+  public void atualizar() {
+
+  }
   public boolean semEnergia() { return energia<=0; }
-  //private void consumirEnergia
+  private void consumirEnergia(int quantidade){
+    if (semEnergia()){ 
+        return 0;
+    }
+    energia -= quantidade;
+  }
   // getters:
   public int getEnergia() { return energia; }
   public int getEnergiaMaxima() { return energiaMaxima; }
