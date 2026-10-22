@@ -135,7 +135,8 @@ public class ModoTesteDeVoo {
 
    
     public void simularDano() {
-        nave.receberDano(15);
+        int dano = aleatorio.nextInt(151);
+        nave.receberDano(dano);
         if (hud != null) {
             hud.piscarDano();
         }
