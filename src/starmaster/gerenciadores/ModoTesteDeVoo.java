@@ -20,6 +20,7 @@ public class ModoTesteDeVoo {
     private static final int ESTRELAS = 900;
     private static final double GIRO_POR_SEGUNDO = 40.0;
     private static final double VELOCIDADE_TIRO = 200;
+    private static final double METADE_CAMPO = 900;
 
     private final NaveJogador nave = new NaveJogador();
     private final List<Entity> estrelas = new ArrayList<>();
@@ -113,5 +114,54 @@ public class ModoTesteDeVoo {
     
     }
 
+    public void simularDano() {
+        int danoRecebido = aleatorio.nextInt()*100;
+        nave.receberDano(danoRecebido);
+        if (hud!=null) {
+            hud.piscarDano();
+        }
+    }
+    public void recarregar() {
+        nave.recarregar();
+    }
+    public NaveJogador getNave() {
+        return nave;
+    }
+
+    private double sortear() {
+        return (aleatorio.nextDouble() * 2 - 1) * METADE_CAMPO;
+    }
+
+    private void reposicionarEstrelas(Point3D centro) {
+        for (Entity estrela : estrelas) {
+            Point3D p = estrela.getPosition3D();
+            double x = darAVolta(p.getX().centro.getX());
+            double y = darAVolta(p.getY().centro.getY());
+            double z = darAVolta(p.getZ().centro.getZ());
+
+            if (x!=p.getX() || y!= p.getY() || z!= p.getZ()) {
+                estrela.setPosition3D(x,y,z);
+            }
+        }
+    }
+
+    private static double darAVolta(double valor, double centro){
+        double distancia = valor - centro;
+        if (distancia > METADE_CAMPO) {
+            return valor - 2 * METADE_CAMPO;
+            
+        }
+        if (distancia < -METADE_CAMPO) {
+            return valor + 2 * METADE_CAMPO;
+        }
+        return valor;
+    }
+    private static void apontar(Cylinder cilindro, Point3D direcao) {
+        Point3D eixoY = new Point3D(0,1,0);
+        double angulo = Math.toDegrees(Math.acos(Math.max(-1, Math.min(1,eixoY.dotProduct(direcao.normalize()))))); //ISSO AQUI TUDO FOI PRA DEIXAR O CILINDRO Q NASCE EM PÉ, DEITADO!
+        if (eixo.magnitude() > 1e-6) { 
+            cilindro.getTransforms().add(new Rotate(angulo, eixo));
+        }
+    }
 
 }
