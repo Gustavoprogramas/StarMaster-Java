@@ -1,4 +1,4 @@
-package starmaster.teste;
+package starmaster.gerenciadores;
 
 import java.util.Random;
 
