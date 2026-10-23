@@ -1,9 +1,17 @@
-package starmaster.interfaces;
+package starmaster.entidades;
 
+public abstract class EntidadeJogo {
 
-public interface Danificavel {
+    protected boolean ativo = true;
 
-    void receberDano(int quantidade);
+  
+    public abstract void atualizar(double tpf);
 
-    boolean estaDestruido();
+    public void desativar() {
+        ativo = false;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
 }
