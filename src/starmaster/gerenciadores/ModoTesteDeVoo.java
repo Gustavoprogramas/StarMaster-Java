@@ -1,4 +1,4 @@
-package starmaster.teste;
+package starmaster.gerenciadores;
 
 import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
 import static com.almasb.fxgl.dsl.FXGL.getGameScene;
