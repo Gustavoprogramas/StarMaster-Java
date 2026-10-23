@@ -1,4 +1,4 @@
-package starmaster.gerenciadores;
+package starmaster.teste;
 
 import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
 import static com.almasb.fxgl.dsl.FXGL.getGameScene;
@@ -17,6 +17,7 @@ import javafx.scene.AmbientLight;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
+import javafx.scene.shape.Sphere;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.transform.Rotate;
 import starmaster.entidades.NaveJogador;
@@ -62,7 +63,7 @@ public class ModoTesteDeVoo {
         };
         for (int i = 0; i < ESTRELAS; i++) {
             double tamanho = 1.5 + aleatorio.nextDouble() * 2.5;
-            Box estrela = new Box(tamanho, tamanho, tamanho);
+            Sphere estrela = new Sphere(tamanho / 2, 8);   // raio, divisões
             estrela.setMaterial(cores[aleatorio.nextInt(cores.length)]);
             estrelas.add(entityBuilder()
                     .at(sortear(), sortear(), sortear())
