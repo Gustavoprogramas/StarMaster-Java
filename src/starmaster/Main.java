@@ -1,14 +1,14 @@
 package starmaster;
 
+import com.almasb.fxgl.app.GameApplication;
+import com.almasb.fxgl.app.GameSettings;
 import static com.almasb.fxgl.dsl.FXGL.onKey;
 import static com.almasb.fxgl.dsl.FXGL.onKeyDown;
 import static com.almasb.fxgl.dsl.FXGL.tpf;
 
-import com.almasb.fxgl.app.GameApplication;
-import com.almasb.fxgl.app.GameSettings;
-
 import javafx.scene.input.KeyCode;
-import starmaster.teste.ModoTesteDeVoo;
+import starmaster.gerenciadores.ModoTesteDeVoo;
+import starmaster.gerenciadores.Partida;
 import starmaster.ui.FabricaDeCenas;
 
 
@@ -19,6 +19,7 @@ public class Main extends GameApplication {
 
     private static ModoDeJogo modo = ModoDeJogo.TESTE_DE_VOO;
     private ModoTesteDeVoo testeDeVoo;
+    private Partida partida;
 
     public static void setModo(ModoDeJogo novoModo) {
         modo = novoModo;
@@ -72,6 +73,12 @@ public class Main extends GameApplication {
         onKeyDown(KeyCode.R, () -> {
             if (testeDeVoo != null) {
                 testeDeVoo.recarregar();
+            }
+        });
+
+        onKeyDown(KeyCode.Q, () -> {
+            if (partida != null) {
+                partida.atracar();
             }
         });
     }

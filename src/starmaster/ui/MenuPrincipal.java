@@ -1,11 +1,10 @@
 package starmaster.ui;
 
-import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
-
 import java.util.Random;
 
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.MenuType;
+import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -48,7 +47,13 @@ public class MenuPrincipal extends FXGLMenu {
         Button botaoSair = criarBotao("SAIR");
         botaoSair.setOnAction(e -> fireExit());
 
-        VBox caixa = new VBox(16, titulo, subtitulo, espaco, botaoTeste, botaoSair);
+        Button botaoJogar = criarBotao("JOGAR");
+        botaoJogar.setOnAction(e -> {
+            Main.setModo(ModoDeJogo.PARTIDA);
+            fireNewGame();
+        });
+
+        VBox caixa = new VBox(16, titulo, subtitulo, espaco, botaoTeste, botaoJogar, botaoSair );
         caixa.setAlignment(Pos.CENTER);
         caixa.setPrefSize(largura, altura);
 
