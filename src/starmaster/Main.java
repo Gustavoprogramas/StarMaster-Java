@@ -1,14 +1,13 @@
 package starmaster;
 
+import com.almasb.fxgl.app.GameApplication;
+import com.almasb.fxgl.app.GameSettings;
 import static com.almasb.fxgl.dsl.FXGL.onKey;
 import static com.almasb.fxgl.dsl.FXGL.onKeyDown;
 import static com.almasb.fxgl.dsl.FXGL.tpf;
 
-import com.almasb.fxgl.app.GameApplication;
-import com.almasb.fxgl.app.GameSettings;
-
 import javafx.scene.input.KeyCode;
-import starmaster.teste.ModoTesteDeVoo;
+import starmaster.gerenciadores.ModoTesteDeVoo;
 import starmaster.ui.FabricaDeCenas;
 
 
