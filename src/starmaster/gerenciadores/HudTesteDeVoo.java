@@ -10,9 +10,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.scene.shape.Circle;
 import starmaster.entidades.NaveJogador;
-import javafx.scene.PerspectiveCamera;
 
 public class HudTesteDeVoo {
 
@@ -47,7 +45,7 @@ public class HudTesteDeVoo {
         double offsetX = ModoTesteDeVoo.CANHAO_LADO / ModoTesteDeVoo.CANHAO_FRENTE * escalaProjecao;
         double offsetY = ModoTesteDeVoo.CANHAO_ABAIXO / ModoTesteDeVoo.CANHAO_FRENTE * escalaProjecao;
 
-        double raioBolinha = 10.0;
+
         Line[] mira = {
                 new Line(cx - 13, cy - 13, cx + 13, cy + 13),
                 new Line(cx + 13, cy - 13, cx - 13, cy + 13)

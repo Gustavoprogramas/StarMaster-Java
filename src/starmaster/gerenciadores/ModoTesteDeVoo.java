@@ -1,24 +1,22 @@
 package starmaster.gerenciadores;
 
-import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
-import static com.almasb.fxgl.dsl.FXGL.getGameScene;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import com.almasb.fxgl.app.scene.Camera3D;
+import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
+import static com.almasb.fxgl.dsl.FXGL.getGameScene;
+import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.components.TransformComponent;
-import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
 
 import javafx.geometry.Point3D;
 import javafx.scene.AmbientLight;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
-import javafx.scene.shape.Sphere;
 import javafx.scene.shape.Cylinder;
+import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import starmaster.entidades.NaveJogador;
 
