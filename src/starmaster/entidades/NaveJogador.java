@@ -1,5 +1,6 @@
 package starmaster.entidades;
 
+import javafx.geometry.Point3D;
 
 public class NaveJogador extends Nave {
 
@@ -7,8 +8,8 @@ public class NaveJogador extends Nave {
     public static final int ESCUDO_MAXIMO = 100;
     public static final int PODER_DE_FOGO = 20;
 
-    public static final double VELOCIDADE_INICIAL = 10;     
-    public static final double VELOCIDADE_MAXIMA = 100;
+    public static final double VELOCIDADE_INICIAL = 0;     
+    public static final double VELOCIDADE_MAXIMA = 10;
     public static final double ACELERACAO = 40;            
     private static final double VELOCIDADE_SEM_ENERGIA = 15;
 
@@ -24,13 +25,15 @@ public class NaveJogador extends Nave {
     private double tempoRegeneracao;
 
     public NaveJogador() {
-        super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO);
+        super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO, new Point3D(0,0,0));
         this.energiaMaxima = ENERGIA_MAXIMA;
         this.energia = ENERGIA_MAXIMA;
     }
 
     @Override
-    public void atualizar(double tpf) {
+    public void atualizar(double tpf, Point3D novaPosicao) {
+        posicao = novaPosicao;
+        System.out.println("Nave na posição " + posicao);
         tempoDesdeTiro += tpf;
         if (semEnergia()) {
         
