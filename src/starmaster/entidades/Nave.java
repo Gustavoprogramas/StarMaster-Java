@@ -1,5 +1,6 @@
 package starmaster.entidades;
 
+import javafx.geometry.Point3D;
 import starmaster.interfaces.Danificavel;
 
 
@@ -9,12 +10,14 @@ public abstract class Nave extends EntidadeJogo implements Danificavel {
     protected int escudoMaximo;
     protected double velocidade;
     protected int poderDeFogo;
+    protected Point3D posicao;
 
-    protected Nave(int escudoMaximo, double velocidadeInicial, int poderDeFogo) {
+    protected Nave(int escudoMaximo, double velocidadeInicial, int poderDeFogo, Point3D posicao) {
         this.escudoMaximo = escudoMaximo;
         this.escudo = escudoMaximo;
         this.velocidade = velocidadeInicial;
         this.poderDeFogo = poderDeFogo;
+        this.posicao = posicao;
     }
 
 

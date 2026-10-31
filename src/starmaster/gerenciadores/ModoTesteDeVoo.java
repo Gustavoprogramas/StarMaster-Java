@@ -19,6 +19,7 @@ import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import starmaster.entidades.NaveJogador;
+import starmaster.entidades.NaveInimiga;
 
 
 public class ModoTesteDeVoo {
@@ -40,6 +41,7 @@ public class ModoTesteDeVoo {
     private double tempoProximoMeteoro = 1.0;
 
     private final NaveJogador nave = new NaveJogador();
+    private final NaveInimiga inimigo = new NaveInimiga();
     private final List<Entity> estrelas = new ArrayList<>();
     private final Random aleatorio = new Random();
     private Camera3D camera;
@@ -52,6 +54,8 @@ public class ModoTesteDeVoo {
         camera.getPerspectiveCamera().setFarClip(4000);
         camera.getPerspectiveCamera().setNearClip(0.5);
         camera.getTransform().setPosition3D(0, 0, 0);
+
+        criarNaveInimiga();
 
 
         entityBuilder().view(new AmbientLight(Color.WHITE)).buildAndAttach();
@@ -75,9 +79,19 @@ public class ModoTesteDeVoo {
         hud.adicionar();
     }
 
+    private Entity criarNaveInimiga() {
+        return entityBuilder()
+                .at(inimigo.getPosicao().getX(),
+                    inimigo.getPosicao().getY(),
+                    inimigo.getPosicao().getZ())
+                .view(inimigo.getModelo())
+                .buildAndAttach();
+}
+
  
     public void atualizar(double tpf) {
-        nave.atualizar(tpf);
+        nave.atualizar(tpf, camera.getTransform().getPosition3D());
+        inimigo.atualizar(tpf, new Point3D(100,0,0));
         TransformComponent transform = camera.getTransform();
         transform.translate3D(transform.getDirection3D().multiply(nave.getVelocidade() * tpf));
         reposicionarEstrelas(transform.getPosition3D());
