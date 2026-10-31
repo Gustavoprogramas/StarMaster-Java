@@ -26,7 +26,7 @@ public class ModoTesteDeVoo {
 
     private static final int ESTRELAS = 900;
     private static final double METADE_CAMPO = 900;        
-    private static final double GIRO_POR_SEGUNDO = 20;      
+    private static final double GIRO_POR_SEGUNDO = 100;      
     private static final double VELOCIDADE_TIRO = 200;
     private static final double DURACAO_TIRO = 10.0;
     private static final double INCLINACAO_MAXIMA = 45;
@@ -43,6 +43,7 @@ public class ModoTesteDeVoo {
     private final NaveJogador nave = new NaveJogador();
     private final NaveInimiga inimigo = new NaveInimiga();
     private final List<Entity> estrelas = new ArrayList<>();
+    private Entity naveInimiga;
     private final Random aleatorio = new Random();
     private Camera3D camera;
     private HudTesteDeVoo hud;
@@ -79,22 +80,52 @@ public class ModoTesteDeVoo {
         hud.adicionar();
     }
 
-    private Entity criarNaveInimiga() {
-        return entityBuilder()
+    private void criarNaveInimiga() {
+        naveInimiga = entityBuilder()
                 .at(inimigo.getPosicao().getX(),
                     inimigo.getPosicao().getY(),
                     inimigo.getPosicao().getZ())
                 .view(inimigo.getModelo())
                 .buildAndAttach();
-}
+    }
+
+    private void atualizarRotacaoInimigo() {
+        Point3D direcao = inimigo.getDirecao().normalize();
+
+        double yaw = Math.toDegrees(
+            Math.atan2(direcao.getX(), direcao.getZ())
+        );
+
+        double pitch = Math.toDegrees(
+            Math.asin(direcao.getY())
+        );
+
+        TransformComponent transform =
+                naveInimiga.getTransformComponent();
+
+        transform.setRotationY(yaw);
+        transform.setRotationX(-pitch);
+    }
 
  
     public void atualizar(double tpf) {
         nave.atualizar(tpf, camera.getTransform().getPosition3D());
-        inimigo.atualizar(tpf, new Point3D(100,0,0));
+        
         TransformComponent transform = camera.getTransform();
         transform.translate3D(transform.getDirection3D().multiply(nave.getVelocidade() * tpf));
         reposicionarEstrelas(transform.getPosition3D());
+
+        inimigo.atualizar(tpf, nave.getPosicao());
+        
+        naveInimiga.getTransformComponent().setPosition3D(
+            inimigo.getPosicao().getX(),
+            inimigo.getPosicao().getY(),
+            inimigo.getPosicao().getZ()
+    );
+
+        atualizarRotacaoInimigo();
+
+        atirar(naveInimiga);
         atualizarMeteoros(tpf);
         if (hud != null) {
             hud.atualizar(nave, tpf);
@@ -135,7 +166,40 @@ public class ModoTesteDeVoo {
                 .subtract(cima.multiply(CANHAO_ABAIXO));
 
         Cylinder laser = new Cylinder(0.45, 16);
-        laser.setMaterial(new PhongMaterial(Color.web("#ff9100")));
+        laser.setMaterial(new PhongMaterial(Color.web("#ff0000")));
+        apontar(laser, frente);
+
+        entityBuilder()
+                .type(TipoEntidade.TIRO)
+                .at(saida)
+                .view(laser)
+                .with(new ComponenteTiro(frente.multiply(VELOCIDADE_TIRO + nave.getVelocidade()), DURACAO_TIRO))
+                .buildAndAttach();
+    }
+
+    public void atirar(Entity naveInimigo){
+        /*System.out.println("Direção lógica: " + inimigo.getDirecao());
+        System.out.println("Direção da entidade: " +
+        naveInimigo.getTransformComponent().getDirection3D()); */
+
+        if(!inimigo.atirar()){
+            return;
+        }
+        TransformComponent transform = naveInimigo.getTransformComponent();
+        Point3D frente = transform.getDirection3D();
+        Point3D cima = transform.getUp3D();
+        Point3D direita = frente.crossProduct(cima).normalize();
+        double lado = canhaoEsquerdo ? -CANHAO_LADO : CANHAO_LADO; // condição valor se verdadeiro ? valor se falso
+        canhaoEsquerdo = !canhaoEsquerdo;
+
+    
+        Point3D saida = transform.getPosition3D()
+                .add(frente.multiply(CANHAO_FRENTE))
+                .add(direita.multiply(lado))
+                .subtract(cima.multiply(CANHAO_ABAIXO));
+
+        Cylinder laser = new Cylinder(0.45, 16);
+        laser.setMaterial(new PhongMaterial(Color.web("#00ff22")));
         apontar(laser, frente);
 
         entityBuilder()
@@ -166,6 +230,7 @@ public class ModoTesteDeVoo {
     private double entre(double minimo, double maximo){
         return minimo+aleatorio.nextDouble() * (maximo - minimo);
     }
+
     private void atualizarMeteoros(double tpf){
         TransformComponent transform = camera.getTransform();
         Point3D posicaoNave = transform.getPosition3D();
@@ -226,7 +291,8 @@ public class ModoTesteDeVoo {
         }
         
     }
-      private void criarMeteoro(TransformComponent transform) {
+
+    private void criarMeteoro(TransformComponent transform) {
         Point3D frente = transform.getDirection3D();
         Point3D cima = transform.getUp3D();
         Point3D direita = frente.crossProduct(cima).normalize();
@@ -251,6 +317,7 @@ public class ModoTesteDeVoo {
                 .with(meteoro)
                 .buildAndAttach();
     }
+
     private static double distanciaAteSegmento(Point3D ponto, Point3D a, Point3D b) {
         Point3D ab = b.subtract(a);
         double comprimento2 = ab.dotProduct(ab);
