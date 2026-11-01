@@ -19,6 +19,7 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import starmaster.entidades.NaveJogador;
 import starmaster.entidades.NaveInimiga;
+import starmaster.entidades.BaseEspacial;
 import starmaster.uteis.*;
 
 
@@ -38,11 +39,13 @@ public class ModoTesteDeVoo {
     private static final double MEIO_LASER = 8;
     private static final double RAIO_LASER = 0.45;
     private static final int MAX_METEOROS = 25;
+    private static final int MAX_BASES = 5;
     private double tempoProximoMeteoro = 1.0;
 
     private final NaveJogador nave = new NaveJogador();
     private final NaveInimiga inimigo = new NaveInimiga();
     private final List<Entity> estrelas = new ArrayList<>();
+    private final List<BaseEspacial> bases = new ArrayList<>();
     private Entity naveInimiga;
     private Camera3D camera;
     private HudTesteDeVoo hud;
@@ -56,6 +59,14 @@ public class ModoTesteDeVoo {
         camera.getTransform().setPosition3D(0, 0, 0);
 
         criarNaveInimiga();
+
+        for (int i = 0; i < MAX_BASES; i++) {
+            BaseEspacial base = new BaseEspacial();
+            bases.add(base);
+            nave.setPosicaoBase(base.getPosicao());
+            inimigo.setPosicaoBase(base.getPosicao());
+            criarBase(base);
+        }
 
 
         entityBuilder().view(new AmbientLight(Color.WHITE)).buildAndAttach();
@@ -77,6 +88,15 @@ public class ModoTesteDeVoo {
     public void criarHud() {
         hud = new HudTesteDeVoo();
         hud.adicionar();
+    }
+
+    private void criarBase(BaseEspacial base) {
+        entityBuilder()
+                .at(base.getPosicao().getX(),
+                    base.getPosicao().getY(),
+                    base.getPosicao().getZ())
+                .view(base.getModelo())
+                .buildAndAttach();
     }
 
     private void criarNaveInimiga() {

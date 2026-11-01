@@ -1,7 +1,5 @@
 package starmaster.gerenciadores;
 
-import java.util.Random;
-
 import com.almasb.fxgl.entity.component.Component;
 
 import javafx.geometry.Point3D;
@@ -11,11 +9,11 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.transform.Rotate;
 import starmaster.interfaces.Danificavel;
+import starmaster.uteis.GerarAleatorio;
 
 
 public class ComponenteMeteoro extends Component implements Danificavel {
 
-    private static final Random SORTEIO = new Random();
     private static final Color[] CORES_ROCHA = {
         Color.web("#6b5a4a"), Color.web("#85715d"), Color.web("#4f4338"), Color.web("#9a8a78")
     };
@@ -31,17 +29,16 @@ public class ComponenteMeteoro extends Component implements Danificavel {
         this.raio = raio;
         this.velocidade = velocidade;
         this.vida = (int) Math.ceil(raio / 6.0) * 10;  
-        this.velocidadeGiro = 20 + SORTEIO.nextDouble() * 60;
+        this.velocidadeGiro = 20 + GerarAleatorio.gerarReal() * 60;
         this.giro = new Rotate(0, eixoAleatorio());
         montarRocha();
     }
-
 
     private void montarRocha() {
         Box nucleo = caixa(raio * 1.3);
         rocha.getChildren().add(nucleo);
         for (int i = 0; i < 4; i++) {
-            Box pedaco = caixa(raio * (0.6 + SORTEIO.nextDouble() * 0.4));
+            Box pedaco = caixa(raio * (0.6 + GerarAleatorio.gerarReal() * 0.4));
             Point3D deslocamento = eixoAleatorio().multiply(raio * 0.45);
             pedaco.setTranslateX(deslocamento.getX());
             pedaco.setTranslateY(deslocamento.getY());
@@ -52,16 +49,16 @@ public class ComponenteMeteoro extends Component implements Danificavel {
     }
 
     private Box caixa(double lado) {
-        Box b = new Box(lado, lado * (0.7 + SORTEIO.nextDouble() * 0.5), lado * (0.7 + SORTEIO.nextDouble() * 0.5));
-        b.setMaterial(new PhongMaterial(CORES_ROCHA[SORTEIO.nextInt(CORES_ROCHA.length)]));
-        b.getTransforms().add(new Rotate(SORTEIO.nextDouble() * 360, eixoAleatorio()));
+        Box b = new Box(lado, lado * (0.7 + GerarAleatorio.gerarReal() * 0.5), lado * (0.7 + GerarAleatorio.gerarReal() * 0.5));
+        b.setMaterial(new PhongMaterial(CORES_ROCHA[GerarAleatorio.gerarInteiro(CORES_ROCHA.length)]));
+        b.getTransforms().add(new Rotate(GerarAleatorio.gerarReal() * 360, eixoAleatorio()));
         return b;
     }
 
     static Point3D eixoAleatorio() {
         Point3D p;
         do {
-            p = new Point3D(SORTEIO.nextDouble() * 2 - 1, SORTEIO.nextDouble() * 2 - 1, SORTEIO.nextDouble() * 2 - 1);
+            p = new Point3D(GerarAleatorio.gerarReal() * 2 - 1, GerarAleatorio.gerarReal() * 2 - 1, GerarAleatorio.gerarReal() * 2 - 1);
         } while (p.magnitude() < 0.1);
         return p.normalize();
     }
