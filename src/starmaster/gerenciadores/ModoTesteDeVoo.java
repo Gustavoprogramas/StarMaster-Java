@@ -27,10 +27,10 @@ public class ModoTesteDeVoo {
 
     private static final int ESTRELAS = 900;
     private static final double METADE_CAMPO = 900;        
-    private static final double GIRO_POR_SEGUNDO = 100;      
+    private static final double GIRO_POR_SEGUNDO = 50;      
     private static final double VELOCIDADE_TIRO = 200;
     private static final double DURACAO_TIRO = 10.0;
-    private static final double INCLINACAO_MAXIMA = 45;
+    private static final double INCLINACAO_MAXIMA = 180;
     public static final double CANHAO_FRENTE = 12.0;
     public static final double CANHAO_LADO = 2.5;
     public static final double CANHAO_ABAIXO = 1.5;
@@ -40,16 +40,16 @@ public class ModoTesteDeVoo {
     private static final double RAIO_LASER = 0.45;
     private static final int MAX_METEOROS = 25;
     private static final int MAX_BASES = 5;
+    private static final int MAX_INIMIGOS = 5;
     private double tempoProximoMeteoro = 1.0;
 
     private final NaveJogador nave = new NaveJogador();
-    private final NaveInimiga inimigo = new NaveInimiga();
+    private final List<NaveInimiga> inimigos = new ArrayList<>();
     private final List<Entity> estrelas = new ArrayList<>();
     private final List<BaseEspacial> bases = new ArrayList<>();
-    private Entity naveInimiga;
+    private final List<Entity> naveInimigas = new ArrayList<>();
     private Camera3D camera;
     private HudTesteDeVoo hud;
-    private boolean canhaoEsquerdo;
 
     public void iniciar() {
         getGameScene().setBackgroundColor(Color.BLACK);
@@ -58,13 +58,18 @@ public class ModoTesteDeVoo {
         camera.getPerspectiveCamera().setNearClip(0.5);
         camera.getTransform().setPosition3D(0, 0, 0);
 
+        for (int i = 0; i < MAX_INIMIGOS; i++) {
+            inimigos.add(new NaveInimiga());
+        }
         criarNaveInimiga();
 
         for (int i = 0; i < MAX_BASES; i++) {
             BaseEspacial base = new BaseEspacial();
             bases.add(base);
             nave.setPosicaoBase(base.getPosicao());
-            inimigo.setPosicaoBase(base.getPosicao());
+            for (NaveInimiga inimigo : inimigos) {
+                inimigo.setPosicaoBase(base.getPosicao());
+            }
             criarBase(base);
         }
 
@@ -100,15 +105,18 @@ public class ModoTesteDeVoo {
     }
 
     private void criarNaveInimiga() {
-        naveInimiga = entityBuilder()
-                .at(inimigo.getPosicao().getX(),
-                    inimigo.getPosicao().getY(),
-                    inimigo.getPosicao().getZ())
-                .view(inimigo.getModelo())
-                .buildAndAttach();
+        for (NaveInimiga inimigo : inimigos) {
+            Entity naveInimiga = entityBuilder()
+                    .at(inimigo.getPosicao().getX(),
+                        inimigo.getPosicao().getY(),
+                        inimigo.getPosicao().getZ())
+                    .view(inimigo.getModelo())
+                    .buildAndAttach();
+            naveInimigas.add(naveInimiga);
+        }
     }
 
-    private void atualizarRotacaoInimigo() {
+    private void atualizarRotacaoInimigo(NaveInimiga inimigo, Entity naveInimiga) {
         Point3D direcao = inimigo.getDirecao().normalize();
 
         double yaw = Math.toDegrees(
@@ -134,17 +142,7 @@ public class ModoTesteDeVoo {
         transform.translate3D(transform.getDirection3D().multiply(nave.getVelocidade() * tpf));
         reposicionarEstrelas(transform.getPosition3D());
 
-        inimigo.atualizar(tpf, nave.getPosicao());
-        
-        naveInimiga.getTransformComponent().setPosition3D(
-            inimigo.getPosicao().getX(),
-            inimigo.getPosicao().getY(),
-            inimigo.getPosicao().getZ()
-    );
-
-        atualizarRotacaoInimigo();
-
-        atirar(naveInimiga);
+        atualizarInimigos(tpf);
         atualizarMeteoros(tpf);
         if (hud != null) {
             hud.atualizar(nave, tpf);
@@ -175,8 +173,8 @@ public class ModoTesteDeVoo {
         Point3D frente = transform.getDirection3D();
         Point3D cima = transform.getUp3D();
         Point3D direita = frente.crossProduct(cima).normalize();
-        double lado = canhaoEsquerdo ? -CANHAO_LADO : CANHAO_LADO; // condição valor se verdadeiro ? valor se falso
-        canhaoEsquerdo = !canhaoEsquerdo;
+        double lado = nave.isCanhaoEsquerdo() ? -CANHAO_LADO : CANHAO_LADO; // condição valor se verdadeiro ? valor se falso
+        nave.trocarCanhao();
 
     
         Point3D saida = transform.getPosition3D()
@@ -196,7 +194,7 @@ public class ModoTesteDeVoo {
                 .buildAndAttach();
     }
 
-    public void atirar(Entity naveInimigo){
+    public void atirar(NaveInimiga inimigo, Entity naveInimigo){
         /*System.out.println("Direção lógica: " + inimigo.getDirecao());
         System.out.println("Direção da entidade: " +
         naveInimigo.getTransformComponent().getDirection3D()); */
@@ -208,8 +206,8 @@ public class ModoTesteDeVoo {
         Point3D frente = transform.getDirection3D();
         Point3D cima = transform.getUp3D();
         Point3D direita = frente.crossProduct(cima).normalize();
-        double lado = canhaoEsquerdo ? -CANHAO_LADO : CANHAO_LADO; // condição valor se verdadeiro ? valor se falso
-        canhaoEsquerdo = !canhaoEsquerdo;
+        double lado = inimigo.isCanhaoEsquerdo()? -CANHAO_LADO : CANHAO_LADO; // condição valor se verdadeiro ? valor se falso
+        inimigo.trocarCanhao();
 
     
         Point3D saida = transform.getPosition3D()
@@ -248,6 +246,27 @@ public class ModoTesteDeVoo {
 
     private double entre(double minimo, double maximo){
         return minimo+GerarAleatorio.gerarReal() * (maximo - minimo);
+    }
+
+    private void atualizarInimigos(double tpf){
+        for (int i = 0; i < inimigos.size(); i++){
+            NaveInimiga inimigo = inimigos.get(i);
+            Entity naveInimiga = naveInimigas.get(i);
+
+            inimigo.atualizar(tpf, nave.getPosicao());
+
+            naveInimiga.getTransformComponent().setPosition3D(
+                inimigo.getPosicao().getX(),
+                inimigo.getPosicao().getY(),
+                inimigo.getPosicao().getZ()
+            );
+
+            atualizarRotacaoInimigo(inimigo, naveInimiga);
+
+            if (inimigo.getEstado() == EstadoInimigo.ATAQUE) {
+                atirar(inimigo, naveInimiga);
+            }
+        }
     }
 
     private void atualizarMeteoros(double tpf){

@@ -8,6 +8,8 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.transform.Rotate;
 import starmaster.uteis.*;
+//import starmaster.interfaces.Danificavel;
+import starmaster.gerenciadores.EstadoInimigo;
 
 public class NaveInimiga extends Nave {
     private static final Color[] CORES_NAVE = {
@@ -19,11 +21,18 @@ public class NaveInimiga extends Nave {
 
 
     public static final double VELOCIDADE_INICIAL = 10;
-    public static final double VELOCIDADE_MAXIMA = 50;
-    public static final double ACELARACAO = 10;
+    public static final double VELOCIDADE_MAXIMA = 80;
+    public static final double ACELARACAO = 15;
 
-    public static final double INTERVALO_TIRO = 0.25;
-    public static final double INTERVALO_REGENERACAO = 1.0;
+    public static final double DISTANCIA_DE_AVANCO = 200.0;
+    public static final double DISTANCIA_DE_RECUO = 50.0;
+
+    private static final double TEMPO_DE_ATAQUE = 5.0;
+    private static final double INTERVALO_TIRO = 0.25;
+    private static final double INTERVALO_REGENERACAO = 1.0;
+
+    private EstadoInimigo estado = EstadoInimigo.PERSEGUICAO;
+    private double tempoDeEstado = 0.0;
 
     private double tempoDesdeTiro = INTERVALO_TIRO;
     private double tempoRegeneracao;
@@ -33,7 +42,7 @@ public class NaveInimiga extends Nave {
     private Point3D direcaoDesejada = new Point3D(0,0,0);
     private double distanciaAlvo = 0.0;
     private static final double DISTANCIA_DE_ATAQUE = 100.0;
-    private static final double TAXA_DE_GIRO=20.0;
+    private static final double TAXA_DE_GIRO=5.0;
 
     public NaveInimiga(){
         super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO, GerarAleatorio.gerarPonto());
@@ -65,9 +74,13 @@ public class NaveInimiga extends Nave {
     public void atualizar(double tpf, Point3D novaPosicao) {
         tempoDesdeTiro += tpf;
 
-        distanciaAlvo = posicao.distance(novaPosicao);
+        Point3D posicaoAlvo = definirAlvo(novaPosicao);
 
-        direcaoDesejada = novaPosicao.subtract(posicao);
+        distanciaAlvo = posicao.distance(posicaoAlvo);
+
+        direcaoDesejada = posicaoAlvo.subtract(posicao);
+
+        atualizarEstado(tpf);
 
         /*System.out.println("Direção atual: " + direcao);
         System.out.println("Direção desejada: " + direcaoDesejada);
@@ -78,10 +91,10 @@ public class NaveInimiga extends Nave {
 
             double fatorGiro = Math.min(1.0, TAXA_DE_GIRO * tpf);
 
-            direcao = direcao.multiply(1-fatorGiro).add(direcaoDesejada.multiply(fatorGiro)).normalize();
+            //manterDistancia(tpf,distanciaAlvo, fatorGiro, direcaoDesejada);
+            //direcao = direcao.multiply(1-fatorGiro).add(direcaoDesejada.multiply(fatorGiro)).normalize();
+            atualizarAcao(tpf, fatorGiro, direcaoDesejada);
         }
-
-        velocidade = Math.max(VELOCIDADE_INICIAL, Math.min(VELOCIDADE_MAXIMA, velocidade + ACELARACAO * tpf));
 
         posicao = posicao.add(direcao.multiply(velocidade * tpf));
 
@@ -96,8 +109,80 @@ public class NaveInimiga extends Nave {
                 escudo++;
             }
         }
+    }
 
+    private Point3D definirAlvo(Point3D posicaoJogador){
+        Point3D posicaoAlvo = posicaoJogador;
 
+        if (!posicoesBase.isEmpty()){
+            for (Point3D posicaoBase : posicoesBase){
+                if(posicao.distance(posicaoBase) < posicao.distance(posicaoAlvo)){
+                    posicaoAlvo = posicaoBase;
+                }
+            }
+        }
+
+        return posicaoAlvo;
+    }
+
+    private void atualizarEstado(double tpf){
+        tempoDeEstado += tpf;
+
+        switch (estado){
+            case PERSEGUICAO:
+                if (distanciaAlvo <= DISTANCIA_DE_ATAQUE){
+                    mudarEstado(EstadoInimigo.ATAQUE);
+                }
+                break;
+            case ATAQUE:
+                if (tempoDeEstado >= TEMPO_DE_ATAQUE || distanciaAlvo < DISTANCIA_DE_RECUO){
+                    mudarEstado(EstadoInimigo.RETIRADA);
+                }
+                break;
+            case RETIRADA:
+                if (distanciaAlvo > DISTANCIA_DE_AVANCO){
+                    mudarEstado(EstadoInimigo.PERSEGUICAO);
+                }
+                break;
+        }
+    }
+
+    private void atualizarAcao(double tpf, double fatorGiro, Point3D direcaoDesejada){
+        switch (estado){
+            case PERSEGUICAO:
+                avancar(fatorGiro, direcaoDesejada);
+                acelerar(tpf);
+                break;
+            case ATAQUE:
+                avancar(fatorGiro, direcaoDesejada);
+                desacelerar(tpf);
+                break;
+            case RETIRADA:
+                fugir(fatorGiro, direcaoDesejada);
+                acelerar(tpf);
+                break;
+        }
+    }
+
+    private void mudarEstado(EstadoInimigo novoEstado){
+        estado = novoEstado;
+        tempoDeEstado = 0.0;
+    }
+
+    private void fugir(double fatorGiro, Point3D direcaoDesejada){
+        direcao = direcao.multiply(1-fatorGiro).add(direcaoDesejada.multiply(-fatorGiro)).normalize();
+    }
+
+    private void avancar(double fatorGiro, Point3D direcaoDesejada){
+        direcao = direcao.multiply(1-fatorGiro).add(direcaoDesejada.multiply(fatorGiro)).normalize();
+    }
+
+    private void acelerar(double tpf){
+        velocidade = Math.max(VELOCIDADE_INICIAL, Math.min(VELOCIDADE_MAXIMA, velocidade + ACELARACAO * tpf));
+    }
+
+    private void desacelerar(double tpf){
+        velocidade = Math.max(VELOCIDADE_INICIAL, Math.min(VELOCIDADE_MAXIMA, velocidade - ACELARACAO * tpf));
     }
 
     private boolean podeAtirar(Point3D direcaoAlvo){
@@ -145,5 +230,9 @@ public class NaveInimiga extends Nave {
 
     public Group getModelo() {
         return modelo;
+    }
+
+    public EstadoInimigo getEstado() {
+        return estado;
     }
 }

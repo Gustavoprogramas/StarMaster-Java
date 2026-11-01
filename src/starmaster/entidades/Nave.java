@@ -14,6 +14,7 @@ public abstract class Nave extends EntidadeJogo implements Danificavel {
     protected double velocidade;
     protected int poderDeFogo;
     protected Point3D posicao;
+    protected boolean canhaoEsquerdo;
     protected List<Point3D> posicoesBase = new ArrayList<>();
 
     protected Nave(int escudoMaximo, double velocidadeInicial, int poderDeFogo, Point3D posicao) {
@@ -43,8 +44,16 @@ public abstract class Nave extends EntidadeJogo implements Danificavel {
         return escudo <= 0;
     }
 
+    public void trocarCanhao() {
+        canhaoEsquerdo = !canhaoEsquerdo;
+    }
+
     public void setPosicaoBase(Point3D posicaoBase) {
         this.posicoesBase.add(posicaoBase);
+    }
+
+    public boolean isCanhaoEsquerdo() {
+        return canhaoEsquerdo;
     }
 
     public int getEscudo() {
