@@ -80,7 +80,7 @@ public class ModoTesteDeVoo {
         hud.adicionar();
         gerenciadorMapa.adicionarNaTela();  
     }
-        /** Tecla M. */
+      
     public void alternarMapa() {
         gerenciadorMapa.alternarMapa();
     }
