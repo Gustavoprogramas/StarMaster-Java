@@ -8,7 +8,6 @@ import static com.almasb.fxgl.dsl.FXGL.tpf;
 
 import javafx.scene.input.KeyCode;
 import starmaster.gerenciadores.ModoTesteDeVoo;
-import starmaster.gerenciadores.Partida;
 import starmaster.ui.FabricaDeCenas;
 
 
@@ -19,7 +18,7 @@ public class Main extends GameApplication {
 
     private static ModoDeJogo modo = ModoDeJogo.TESTE_DE_VOO;
     private ModoTesteDeVoo testeDeVoo;
-    private Partida partida;
+    
 
     public static void setModo(ModoDeJogo novoModo) {
         modo = novoModo;
@@ -75,12 +74,13 @@ public class Main extends GameApplication {
                 testeDeVoo.recarregar();
             }
         });
-
-        onKeyDown(KeyCode.Q, () -> {
-            if (partida != null) {
-                partida.atracar();
+         onKeyDown(KeyCode.M, () -> {
+            if (testeDeVoo != null) {
+                testeDeVoo.alternarMapa();
             }
         });
+
+       
     }
 
     @Override

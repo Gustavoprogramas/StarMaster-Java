@@ -93,6 +93,17 @@ public class NaveJogador extends Nave {
         ativo = true;
     }
 
+
+    public boolean gastarEnergia(int quantidade) {
+        if (quantidade> energia){
+            return false;
+        }
+        consumirEnergia(quantidade);
+            return true;
+        
+    }
+
+
     public boolean semEnergia() {
         return energia <= 0;
     }
