@@ -19,6 +19,8 @@ import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import starmaster.entidades.NaveJogador;
+import starmaster.mapa.Setor;
+import starmaster.mapa.TipoDeSetor;
 
 
 public class ModoTesteDeVoo {
@@ -45,6 +47,8 @@ public class ModoTesteDeVoo {
     private Camera3D camera;
     private HudTesteDeVoo hud;
     private boolean canhaoEsquerdo;
+    private GerenciadorMapa gerenciadorMapa;
+    private boolean setorDeMeteoros;    
 
     public void iniciar() {
         getGameScene().setBackgroundColor(Color.BLACK);
@@ -68,11 +72,34 @@ public class ModoTesteDeVoo {
                     .view(estrela)
                     .buildAndAttach());
         }
+                gerenciadorMapa = new GerenciadorMapa(nave, this::entrarNoSetor);
     }
 
     public void criarHud() {
         hud = new HudTesteDeVoo();
         hud.adicionar();
+        gerenciadorMapa.adicionarNaTela();  
+    }
+        /** Tecla M. */
+    public void alternarMapa() {
+        gerenciadorMapa.alternarMapa();
+    }
+
+
+    private void entrarNoSetor(Setor setor) {
+       
+        for (Entity meteoro : getGameWorld().getEntitiesByType(TipoEntidade.METEORO)) {
+            meteoro.removeFromWorld();
+        }
+       
+        Point3D centro = camera.getTransform().getPosition3D();
+        for (Entity estrela : estrelas) {
+            estrela.setPosition3D(centro.getX() + sortear(), centro.getY() + sortear(), centro.getZ() + sortear());
+        }
+        setorDeMeteoros = setor.getTipo() == TipoDeSetor.METEOROS;
+        tempoProximoMeteoro = 1.0;
+
+       
     }
 
  
@@ -82,6 +109,7 @@ public class ModoTesteDeVoo {
         transform.translate3D(transform.getDirection3D().multiply(nave.getVelocidade() * tpf));
         reposicionarEstrelas(transform.getPosition3D());
         atualizarMeteoros(tpf);
+        gerenciadorMapa.atualizar(tpf);
         if (hud != null) {
             hud.atualizar(nave, tpf);
         }
@@ -158,7 +186,7 @@ public class ModoTesteDeVoo {
         Point3D frente = transform.getDirection3D();
         tempoProximoMeteoro -= tpf;
         if (tempoProximoMeteoro <=0){
-            tempoProximoMeteoro = entre(0.4, 1.2);
+            tempoProximoMeteoro = setorDeMeteoros ? entre(0.1, 0.3) : entre(0.4, 1.2);
             if (getGameWorld().getEntitiesByType(TipoEntidade.METEORO).size() < MAX_METEOROS){
                 criarMeteoro(transform);
             }
