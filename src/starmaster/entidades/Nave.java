@@ -1,5 +1,8 @@
 package starmaster.entidades;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.geometry.Point3D;
 import starmaster.interfaces.Danificavel;
 
@@ -11,6 +14,7 @@ public abstract class Nave extends EntidadeJogo implements Danificavel {
     protected double velocidade;
     protected int poderDeFogo;
     protected Point3D posicao;
+    protected List<Point3D> posicoesBase = new ArrayList<>();
 
     protected Nave(int escudoMaximo, double velocidadeInicial, int poderDeFogo, Point3D posicao) {
         this.escudoMaximo = escudoMaximo;
@@ -37,6 +41,10 @@ public abstract class Nave extends EntidadeJogo implements Danificavel {
     @Override
     public boolean estaDestruido() {
         return escudo <= 0;
+    }
+
+    public void setPosicaoBase(Point3D posicaoBase) {
+        this.posicoesBase.add(posicaoBase);
     }
 
     public int getEscudo() {
