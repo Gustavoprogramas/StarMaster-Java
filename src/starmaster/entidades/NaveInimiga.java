@@ -2,20 +2,12 @@ package starmaster.entidades;
 
 import javafx.geometry.Point3D;
 
-import javafx.scene.paint.Color;
 import javafx.scene.Group;
-import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
-import javafx.scene.transform.Rotate;
 import starmaster.uteis.*;
 //import starmaster.interfaces.Danificavel;
 import starmaster.gerenciadores.EstadoInimigo;
 
 public class NaveInimiga extends Nave {
-    private static final Color[] CORES_NAVE = {
-        Color.web("#00d9ff"), Color.web("#1d00c2"), Color.web("rgb(0, 4, 211)"), Color.web("#0400ff")
-    };
-
     public static final int ESCUDO_MAXIMO = 100;
     public static final int PODER_DE_FOGO = 10;
 
@@ -37,7 +29,8 @@ public class NaveInimiga extends Nave {
     private double tempoDesdeTiro = INTERVALO_TIRO;
     private double tempoRegeneracao;
 
-    private Group modelo = new Group();
+    private ModeloNave modelo = new ModeloNave();
+    //private Group modelo = new Group();
     private Point3D direcao = new Point3D(0, 0, -1);
     private Point3D direcaoDesejada = new Point3D(0,0,0);
     private double distanciaAlvo = 0.0;
@@ -47,10 +40,10 @@ public class NaveInimiga extends Nave {
     public NaveInimiga(){
         super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO, GerarAleatorio.gerarPonto());
         //System.out.println("Nave inimiga criada na posição: " + posicao);
-        montarModelo();
+        //montarModelo();
     }
 
-    private void montarModelo(){
+    /*private void montarModelo(){
         Box nucleo = caixa(3.0);
         modelo.getChildren().add(nucleo);
     }
@@ -68,7 +61,7 @@ public class NaveInimiga extends Nave {
             p = new Point3D(GerarAleatorio.gerarReal() * 2 - 1, GerarAleatorio.gerarReal() * 2 - 1, GerarAleatorio.gerarReal() * 2 - 1);
         } while (p.magnitude() < 0.1);
         return p.normalize();
-    }
+    }*/
 
     @Override
     public void atualizar(double tpf, Point3D novaPosicao) {
@@ -229,7 +222,7 @@ public class NaveInimiga extends Nave {
     }
 
     public Group getModelo() {
-        return modelo;
+        return modelo.getModelo();
     }
 
     public EstadoInimigo getEstado() {
