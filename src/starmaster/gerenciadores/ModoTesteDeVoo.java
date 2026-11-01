@@ -2,7 +2,6 @@ package starmaster.gerenciadores;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import com.almasb.fxgl.app.scene.Camera3D;
 import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
@@ -20,6 +19,7 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import starmaster.entidades.NaveJogador;
 import starmaster.entidades.NaveInimiga;
+import starmaster.uteis.*;
 
 
 public class ModoTesteDeVoo {
@@ -44,7 +44,6 @@ public class ModoTesteDeVoo {
     private final NaveInimiga inimigo = new NaveInimiga();
     private final List<Entity> estrelas = new ArrayList<>();
     private Entity naveInimiga;
-    private final Random aleatorio = new Random();
     private Camera3D camera;
     private HudTesteDeVoo hud;
     private boolean canhaoEsquerdo;
@@ -65,9 +64,9 @@ public class ModoTesteDeVoo {
             new PhongMaterial(Color.WHITE), new PhongMaterial(Color.web("#cfe2ff")), new PhongMaterial(Color.web("#fff1c9"))
         };
         for (int i = 0; i < ESTRELAS; i++) {
-            double tamanho = 1.5 + aleatorio.nextDouble() * 2.5;
+            double tamanho = 1.5 + GerarAleatorio.gerarReal() * 2.5;
             Sphere estrela = new Sphere(tamanho / 2, 8);   // raio, divisões
-            estrela.setMaterial(cores[aleatorio.nextInt(cores.length)]);
+            estrela.setMaterial(cores[GerarAleatorio.gerarInteiro(cores.length)]);
             estrelas.add(entityBuilder()
                     .at(sortear(), sortear(), sortear())
                     .view(estrela)
@@ -206,13 +205,13 @@ public class ModoTesteDeVoo {
                 .type(TipoEntidade.TIRO)
                 .at(saida)
                 .view(laser)
-                .with(new ComponenteTiro(frente.multiply(VELOCIDADE_TIRO + nave.getVelocidade()), DURACAO_TIRO))
+                .with(new ComponenteTiro(frente.multiply(VELOCIDADE_TIRO + inimigo.getVelocidade()), DURACAO_TIRO))
                 .buildAndAttach();
     }
 
    
     public void simularDano() {
-        int dano = aleatorio.nextInt(151);
+        int dano = GerarAleatorio.gerarInteiro(151);
         nave.receberDano(dano);
         if (hud != null) {
             hud.piscarDano();
@@ -228,7 +227,7 @@ public class ModoTesteDeVoo {
     }
 
     private double entre(double minimo, double maximo){
-        return minimo+aleatorio.nextDouble() * (maximo - minimo);
+        return minimo+GerarAleatorio.gerarReal() * (maximo - minimo);
     }
 
     private void atualizarMeteoros(double tpf){
@@ -297,7 +296,7 @@ public class ModoTesteDeVoo {
         Point3D cima = transform.getUp3D();
         Point3D direita = frente.crossProduct(cima).normalize();
 
-        boolean emRumoDeColisao = aleatorio.nextDouble() < CHANCE_RUMO_DE_COLISAO;
+        boolean emRumoDeColisao = GerarAleatorio.gerarReal() < CHANCE_RUMO_DE_COLISAO;
         double espalhar = emRumoDeColisao ? 25 : 300;   
 
         Point3D posicao = transform.getPosition3D()
@@ -331,7 +330,7 @@ public class ModoTesteDeVoo {
 
 
     private double sortear() {
-        return (aleatorio.nextDouble() * 2 - 1) * METADE_CAMPO;
+        return (GerarAleatorio.gerarReal() * 2 - 1) * METADE_CAMPO;
     }
 
  

@@ -1,6 +1,5 @@
 package starmaster.entidades;
 
-import java.util.Random;
 import javafx.geometry.Point3D;
 
 import javafx.scene.paint.Color;
@@ -11,7 +10,6 @@ import javafx.scene.transform.Rotate;
 import starmaster.uteis.*;
 
 public class NaveInimiga extends Nave {
-    private static final Random SORTEIO = new Random();
     private static final Color[] CORES_NAVE = {
         Color.web("#00d9ff"), Color.web("#1d00c2"), Color.web("rgb(0, 4, 211)"), Color.web("#0400ff")
     };
@@ -38,7 +36,7 @@ public class NaveInimiga extends Nave {
     private static final double TAXA_DE_GIRO=20.0;
 
     public NaveInimiga(){
-        super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO, /*new Point3D(0,0,100)*/GerarPontoAleatorio.gerarPonto());
+        super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO, GerarAleatorio.gerarPonto());
         //System.out.println("Nave inimiga criada na posição: " + posicao);
         montarModelo();
     }
@@ -49,16 +47,16 @@ public class NaveInimiga extends Nave {
     }
 
     private Box caixa(double lado) {
-        Box b = new Box(lado, lado * (0.7 + SORTEIO.nextDouble() * 0.5), lado * (0.7 + SORTEIO.nextDouble() * 0.5));
-        b.setMaterial(new PhongMaterial(CORES_NAVE[SORTEIO.nextInt(CORES_NAVE.length)]));
-        b.getTransforms().add(new Rotate(SORTEIO.nextDouble() * 360, eixoAleatorio()));
+        Box b = new Box(lado, lado * (0.7 + GerarAleatorio.gerarReal() * 0.5), lado * (0.7 + GerarAleatorio.gerarReal() * 0.5));
+        b.setMaterial(new PhongMaterial(CORES_NAVE[GerarAleatorio.gerarInteiro(CORES_NAVE.length)]));
+        b.getTransforms().add(new Rotate(GerarAleatorio.gerarReal() * 360, eixoAleatorio()));
         return b;
     }
 
     private static Point3D eixoAleatorio() {
         Point3D p;
         do {
-            p = new Point3D(SORTEIO.nextDouble() * 2 - 1, SORTEIO.nextDouble() * 2 - 1, SORTEIO.nextDouble() * 2 - 1);
+            p = new Point3D(GerarAleatorio.gerarReal() * 2 - 1, GerarAleatorio.gerarReal() * 2 - 1, GerarAleatorio.gerarReal() * 2 - 1);
         } while (p.magnitude() < 0.1);
         return p.normalize();
     }
