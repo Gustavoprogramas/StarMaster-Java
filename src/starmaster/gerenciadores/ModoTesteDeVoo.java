@@ -39,7 +39,7 @@ public class ModoTesteDeVoo {
     private static final double MEIO_LASER = 8;
     private static final double RAIO_LASER = 0.45;
     private static final int MAX_METEOROS = 25;
-    private static final int MAX_BASES = 5;
+    private static final int MAX_BASES = 1;
     private static final int MAX_INIMIGOS = 5;
     private double tempoProximoMeteoro = 1.0;
 
