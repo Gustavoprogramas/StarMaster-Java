@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import starmaster.uteis.*;
 //import starmaster.interfaces.Danificavel;
 import starmaster.gerenciadores.EstadoInimigo;
+import starmaster.modelos.ModeloNave;
 
 public class NaveInimiga extends Nave {
     public static final int ESCUDO_MAXIMO = 100;
@@ -17,7 +18,9 @@ public class NaveInimiga extends Nave {
     public static final double ACELARACAO = 15;
 
     public static final double DISTANCIA_DE_AVANCO = 200.0;
-    public static final double DISTANCIA_DE_RECUO = 50.0;
+    public static final double DISTANCIA_DE_RECUO = 160.0;
+    private static final double DISTANCIA_DE_ATAQUE = 200.0;
+    private static final double TAXA_DE_GIRO=8.0;
 
     private static final double TEMPO_DE_ATAQUE = 5.0;
     private static final double INTERVALO_TIRO = 0.25;
@@ -30,38 +33,13 @@ public class NaveInimiga extends Nave {
     private double tempoRegeneracao;
 
     private ModeloNave modelo = new ModeloNave();
-    //private Group modelo = new Group();
     private Point3D direcao = new Point3D(0, 0, -1);
     private Point3D direcaoDesejada = new Point3D(0,0,0);
     private double distanciaAlvo = 0.0;
-    private static final double DISTANCIA_DE_ATAQUE = 100.0;
-    private static final double TAXA_DE_GIRO=5.0;
 
     public NaveInimiga(){
         super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO, GerarAleatorio.gerarPonto());
-        //System.out.println("Nave inimiga criada na posição: " + posicao);
-        //montarModelo();
     }
-
-    /*private void montarModelo(){
-        Box nucleo = caixa(3.0);
-        modelo.getChildren().add(nucleo);
-    }
-
-    private Box caixa(double lado) {
-        Box b = new Box(lado, lado * (0.7 + GerarAleatorio.gerarReal() * 0.5), lado * (0.7 + GerarAleatorio.gerarReal() * 0.5));
-        b.setMaterial(new PhongMaterial(CORES_NAVE[GerarAleatorio.gerarInteiro(CORES_NAVE.length)]));
-        b.getTransforms().add(new Rotate(GerarAleatorio.gerarReal() * 360, eixoAleatorio()));
-        return b;
-    }
-
-    private static Point3D eixoAleatorio() {
-        Point3D p;
-        do {
-            p = new Point3D(GerarAleatorio.gerarReal() * 2 - 1, GerarAleatorio.gerarReal() * 2 - 1, GerarAleatorio.gerarReal() * 2 - 1);
-        } while (p.magnitude() < 0.1);
-        return p.normalize();
-    }*/
 
     @Override
     public void atualizar(double tpf, Point3D novaPosicao) {
@@ -84,8 +62,6 @@ public class NaveInimiga extends Nave {
 
             double fatorGiro = Math.min(1.0, TAXA_DE_GIRO * tpf);
 
-            //manterDistancia(tpf,distanciaAlvo, fatorGiro, direcaoDesejada);
-            //direcao = direcao.multiply(1-fatorGiro).add(direcaoDesejada.multiply(fatorGiro)).normalize();
             atualizarAcao(tpf, fatorGiro, direcaoDesejada);
         }
 
