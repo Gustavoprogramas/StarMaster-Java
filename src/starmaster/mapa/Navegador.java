@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-import starmaster.entidades.Nave;
+
 
 public class Navegador {
     private final MapaGalactico mapa;

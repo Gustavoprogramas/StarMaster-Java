@@ -29,6 +29,17 @@ public class MapaGalactico {
     }
 
     //fazer sorteio do mapa.
+
+    public static MapaGalactico sortear(int linhas, int colunas, int base, int inimigos, int meteotos, Random aleatorio){
+        if(base + inimigos + meteotos >= linhas *  colunas){
+            throw new IllegalArgumentException("Muita coisa no mapa");
+        }
+        MapaGalactico mapa = new MapaGalactico(linhas, colunas);
+        mapa.espalhar(TipoDeSetor.BASE, base, aleatorio);
+        mapa.espalhar(TipoDeSetor.INIMIGO, inimigos, aleatorio);
+        mapa.espalhar(TipoDeSetor.METEOROS, meteotos, aleatorio);
+        return mapa;
+    }
     private void espalhar (TipoDeSetor tipo, int quantidade, Random aleatorio){
         for (int i = 0; i<quantidade; i++) {
             SorteioMapa(aleatorio).setTipo(tipo);
