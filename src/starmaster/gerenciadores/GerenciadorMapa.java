@@ -1,11 +1,12 @@
 package starmaster.gerenciadores;
 
+import java.util.List;
+import java.util.Random;
+import java.util.function.Consumer;
+
 import static com.almasb.fxgl.dsl.FXGL.getAppHeight;
 import static com.almasb.fxgl.dsl.FXGL.getAppWidth;
 import static com.almasb.fxgl.dsl.FXGL.getGameScene;
-
-import java.util.List;
-import java.util.function.Consumer;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -20,6 +21,8 @@ public class GerenciadorMapa {
     public static final int ENERGIA_POR_SETOR = 20; 
 
    
+
+
     private static final String[] MAPA_INICIAL = {
         "........",
         "...X....",
@@ -31,8 +34,16 @@ public class GerenciadorMapa {
         "........",
     };
 
-    private final MapaGalactico mapa = MapaGalactico.deTexto(MAPA_INICIAL);
-    private final Navegador navegador = new Navegador(mapa);
+    private static final int LINHAS = 8;
+    private static final int COLUNAS = 8;
+    private static final int BASES = 4;
+    private static final int INIMIGOS = 10;
+    private static final int METEOROS = 8;
+    private static final int SALTOS_MINIMOS_ATE_BASE = 3;
+    private static final int MAX_TENTATIVAS = 100;
+    private final Random aleatorio = new Random();
+    private MapaGalactico mapa;
+    private Navegador navegador;
     private final NaveJogador nave;
     private final Consumer<Setor> aoEntrarNoSetor;  
     private MiniMapa miniMapa;                       
@@ -44,8 +55,22 @@ public class GerenciadorMapa {
     public GerenciadorMapa(NaveJogador nave, Consumer<Setor> aoEntrarNoSetor) {
         this.nave = nave;
         this.aoEntrarNoSetor = aoEntrarNoSetor;
-        this.setorAtual = mapa.getSetor(1, 1);
-        this.rota = navegador.rotaAteBaseMaisProxima(setorAtual);
+        sortearMapaJogavel();
+    }
+    private void sortearMapaJogavel() {
+        for (int tentativa = 0; tentativa < MAX_TENTATIVAS; tentativa++){
+            mapa = MapaGalactico.sortear(LINHAS, COLUNAS, BASES, INIMIGOS, METEOROS, aleatorio);
+            navegador = new Navegador(mapa);
+            setorAtual = mapa.SorteioMapa(aleatorio);
+            rota = navegador.rotaAteBaseMaisProxima(setorAtual);
+            if (!rota.isEmpty() && rota.size() - 1 >= SALTOS_MINIMOS_ATE_BASE){
+                return;
+            }
+        }
+        mapa = MapaGalactico.deTexto(MAPA_INICIAL);
+        navegador = new Navegador(mapa);
+        setorAtual = mapa.getSetor(1,1 );
+        rota = navegador.rotaAteBaseMaisProxima(setorAtual);
     }
 
    

@@ -1,11 +1,11 @@
 package starmaster.ui;
-import static com.almasb.fxgl.dsl.FXGL.getAppHeight;
-import static com.almasb.fxgl.dsl.FXGL.getAppWidth;
-import static com.almasb.fxgl.dsl.FXGL.getGameScene;
-
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import static com.almasb.fxgl.dsl.FXGL.getAppHeight;
+import static com.almasb.fxgl.dsl.FXGL.getAppWidth;
+import static com.almasb.fxgl.dsl.FXGL.getGameScene;
 
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
@@ -15,6 +15,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import starmaster.mapa.MapaGalactico;
 import starmaster.mapa.Setor;
+import starmaster.mapa.TipoDeSetor;
 
 public class MiniMapa {
 
@@ -107,7 +108,11 @@ public class MiniMapa {
 
     }
     private static Color corDo(Setor setor) {
-        return Color.web("#0800ff");
+        if (setor.getTipo() == TipoDeSetor.BASE) {
+            return Color.web("#ff0000");
+
+        }
+        return Color.web("#00ff00");
     }
     private static Text texto(String conteudo, double tamanho, Color cor){
         Text t = new Text(conteudo);
