@@ -17,10 +17,10 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
-import starmaster.entidades.NaveJogador;
-import starmaster.entidades.NaveInimiga;
 import starmaster.entidades.BaseEspacial;
-import starmaster.uteis.*;
+import starmaster.entidades.NaveInimiga;
+import starmaster.entidades.NaveJogador;
+import starmaster.uteis.GerarAleatorio;
 
 
 public class ModoTesteDeVoo {
@@ -203,7 +203,7 @@ public class ModoTesteDeVoo {
             return;
         }
         TransformComponent transform = naveInimigo.getTransformComponent();
-        Point3D frente = transform.getDirection3D();
+        Point3D frente = inimigo.getDirecao();//transform.getDirection3D();
         Point3D cima = transform.getUp3D();
         Point3D direita = frente.crossProduct(cima).normalize();
         double lado = inimigo.isCanhaoEsquerdo()? -CANHAO_LADO : CANHAO_LADO; // condição valor se verdadeiro ? valor se falso

@@ -1,7 +1,8 @@
 package starmaster.uteis;
 
-import javafx.geometry.Point3D;
 import java.util.Random;
+
+import javafx.geometry.Point3D;
 
 public class GerarAleatorio {
     public static Random random = new Random();
