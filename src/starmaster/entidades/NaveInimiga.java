@@ -11,7 +11,7 @@ public class NaveInimiga extends Nave {
     private static final int PODER_DE_FOGO = 10;
 
     private static final double VELOCIDADE_INICIAL = 10;
-    private static final double VELOCIDADE_MAXIMA = 120;
+    private static final double VELOCIDADE_MAXIMA = 140;
     private static final double ACELARACAO = 25;
 
     private static final double DISTANCIA_DE_AVANCO = 300.0;
@@ -64,6 +64,8 @@ public class NaveInimiga extends Nave {
         double fatorGiro = Math.min(1.0, TAXA_DE_GIRO * tpf);
 
         atualizarAcao(tpf, fatorGiro, direcaoDesejada);
+
+        System.out.println("Velocidade: " + velocidade);
     
 
         posicao = posicao.add(direcao.multiply(velocidade * tpf));

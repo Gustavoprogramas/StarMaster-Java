@@ -40,7 +40,7 @@ public class ModoTesteDeVoo {
     private static final double RAIO_LASER = 0.45;
     private static final int MAX_METEOROS = 25;
     private static final int MAX_BASES = 1;
-    private static final int MAX_INIMIGOS = 5;
+    private static final int MAX_INIMIGOS = 1;
     private double tempoProximoMeteoro = 1.0;
 
     private final NaveJogador nave = new NaveJogador();
