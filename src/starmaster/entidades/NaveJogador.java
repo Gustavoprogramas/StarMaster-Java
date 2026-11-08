@@ -11,6 +11,8 @@ public class NaveJogador extends Nave {
     public static final double VELOCIDADE_MAXIMA = 100;
     public static final double ACELERACAO = 40;            
     private static final double VELOCIDADE_SEM_ENERGIA = 15;
+    private static final double TEMPO_COLISAO = 2.7;
+
 
     private static final int CUSTO_TIRO = 5;
     private static final double INTERVALO_TIRO = 0.15;    
@@ -22,6 +24,7 @@ public class NaveJogador extends Nave {
     private double tempoDesdeTiro = INTERVALO_TIRO;
     private double consumoAcumulado;
     private double tempoRegeneracao;
+    private double tempoColisao;
 
     public NaveJogador() {
         super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO);
@@ -32,6 +35,8 @@ public class NaveJogador extends Nave {
     @Override
     public void atualizar(double tpf) {
         tempoDesdeTiro += tpf;
+        
+        
         if (semEnergia()) {
         
             velocidade = Math.max(VELOCIDADE_SEM_ENERGIA, velocidade - ACELERACAO * tpf);
@@ -55,6 +60,10 @@ public class NaveJogador extends Nave {
                 escudo++;
                 consumirEnergia(1);
             }
+        }
+        if (tempoColisao > 0 ){
+            tempoColisao -= tpf;
+            return;
         }
     }
 
@@ -103,6 +112,14 @@ public class NaveJogador extends Nave {
         
     }
 
+
+    public void sofrerImpacto() {
+        velocidade = 0;
+        tempoColisao = TEMPO_COLISAO;
+    }
+    public boolean isColidido() {
+        return tempoColisao > 0;
+    }
 
     public boolean semEnergia() {
         return energia <= 0;
