@@ -13,6 +13,7 @@ import com.almasb.fxgl.entity.components.TransformComponent;
 
 import javafx.geometry.Point3D;
 import javafx.scene.AmbientLight;
+import javafx.scene.effect.Light.Point;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
@@ -39,6 +40,8 @@ public class ModoTesteDeVoo {
     private static final double MEIO_LASER = 8;
     private static final double RAIO_LASER = 0.45;
     private static final int MAX_METEOROS = 25;
+    private static final double FORCA_RECUO = 300;
+    private static final double AMORTECIMENTO = 2;
     private double tempoProximoMeteoro = 1.0;
 
     private final NaveJogador nave = new NaveJogador();
@@ -49,6 +52,7 @@ public class ModoTesteDeVoo {
     private boolean canhaoEsquerdo;
     private GerenciadorMapa gerenciadorMapa;
     private boolean setorDeMeteoros;    
+    private Point3D recuo = Point3D.ZERO;
 
     public void iniciar() {
         getGameScene().setBackgroundColor(Color.BLACK);
@@ -107,6 +111,7 @@ public class ModoTesteDeVoo {
         nave.atualizar(tpf);
         TransformComponent transform = camera.getTransform();
         transform.translate3D(transform.getDirection3D().multiply(nave.getVelocidade() * tpf));
+        aplicarRecuo(tpf);
         reposicionarEstrelas(transform.getPosition3D());
         atualizarMeteoros(tpf);
         gerenciadorMapa.atualizar(tpf);
@@ -231,6 +236,8 @@ public class ModoTesteDeVoo {
             }
             if (meteoro.getPosition3D().distance(posicaoNave) < dados.getRaio() + RAIO_NAVE) {
                 nave.receberDano(dados.getDano());
+                nave.sofrerImpacto();
+                empurrarParaLonge(meteoro.getPosition3D(), posicaoNave);
                 if (hud != null) {
                     hud.piscarDano();
                 }
@@ -239,6 +246,22 @@ public class ModoTesteDeVoo {
             }
         }
         
+    }
+    private void empurrarParaLonge(Point3D posicaoMeteoro, Point3D posicaoNave){
+        Point3D direcao = posicaoNave.subtract(posicaoMeteoro);
+        if (direcao.magnitude() < 1e-6){
+            direcao = camera.getTransform().getDirection3D().multiply(-1);
+        }
+        recuo = direcao.normalize().multiply(FORCA_RECUO);
+    }
+    private void aplicarRecuo(double tpf){
+        if (recuo.magnitude()<0.5){
+            recuo = Point3D.ZERO;
+            return;
+
+        }
+        camera.getTransform().translate3D(recuo.multiply(tpf));
+        recuo = recuo.multiply(Math.exp(-AMORTECIMENTO * tpf));
     }
       private void criarMeteoro(TransformComponent transform) {
         Point3D frente = transform.getDirection3D();
