@@ -7,6 +7,7 @@ import java.util.Random;
 public class MapaGalactico {
     private static final int[][] DIRECOES = {{-1,0}, {1,0}, {0, -1}, {0, 1}};
     private final Setor [][] grade;
+    
     public MapaGalactico(int linhas, int colunas){
         grade = new Setor[linhas][colunas];
         for (int l = 0; l<linhas; l++){

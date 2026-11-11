@@ -19,9 +19,12 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
+import starmaster.entidades.BaseEspacial;
+import starmaster.entidades.NaveInimiga;
 import starmaster.entidades.NaveJogador;
 import starmaster.mapa.Setor;
 import starmaster.mapa.TipoDeSetor;
+import starmaster.uteis.GerarAleatorio;
 
 
 public class ModoTesteDeVoo {
@@ -42,11 +45,16 @@ public class ModoTesteDeVoo {
     private static final int MAX_METEOROS = 25;
     private static final double FORCA_RECUO = 300;
     private static final double AMORTECIMENTO = 2;
+    private static final int MAX_BASES = 1;
+    private static final int MAX_INIMIGOS = 1;
     private double tempoProximoMeteoro = 1.0;
 
     private final NaveJogador nave = new NaveJogador();
     private final List<Entity> estrelas = new ArrayList<>();
     private final Random aleatorio = new Random();
+    private final List<BaseEspacial> bases = new ArrayList<>();
+    private final List<Entity> naveInimigas = new ArrayList<>();
+    private final List<NaveInimiga> inimigos = new ArrayList<>();
     private Camera3D camera;
     private HudTesteDeVoo hud;
     private boolean canhaoEsquerdo;
@@ -61,6 +69,21 @@ public class ModoTesteDeVoo {
         camera.getPerspectiveCamera().setNearClip(0.5);
         camera.getTransform().setPosition3D(0, 0, 0);
 
+        for (int i = 0; i < MAX_INIMIGOS; i++) {
+            inimigos.add(new NaveInimiga());
+        }
+        criarNaveInimiga();
+
+        for (int i = 0; i < MAX_BASES; i++) {
+            BaseEspacial base = new BaseEspacial();
+            bases.add(base);
+            nave.setPosicaoBase(base.getPosicao());
+            for (NaveInimiga inimigo : inimigos) {
+                inimigo.setPosicaoBase(base.getPosicao());
+            }
+            criarBase(base);
+        }
+
 
         entityBuilder().view(new AmbientLight(Color.WHITE)).buildAndAttach();
 
@@ -68,30 +91,81 @@ public class ModoTesteDeVoo {
             new PhongMaterial(Color.WHITE), new PhongMaterial(Color.web("#cfe2ff")), new PhongMaterial(Color.web("#fff1c9"))
         };
         for (int i = 0; i < ESTRELAS; i++) {
-            double tamanho = 1.5 + aleatorio.nextDouble() * 2.5;
+            double tamanho = 1.5 + GerarAleatorio.gerarReal() * 2.5;
             Sphere estrela = new Sphere(tamanho / 2, 8);   // raio, divisões
-            estrela.setMaterial(cores[aleatorio.nextInt(cores.length)]);
+            estrela.setMaterial(cores[GerarAleatorio.gerarInteiro(cores.length)]);
             estrelas.add(entityBuilder()
                     .at(sortear(), sortear(), sortear())
                     .view(estrela)
                     .buildAndAttach());
         }
-                gerenciadorMapa = new GerenciadorMapa(nave, this::entrarNoSetor);
+        gerenciadorMapa = new GerenciadorMapa(nave, this::entrarNoSetor);
     }
 
     public void criarHud() {
         hud = new HudTesteDeVoo();
         hud.adicionar();
-        gerenciadorMapa.adicionarNaTela();  
     }
-      
+
+    private void criarBase(BaseEspacial base) {
+        entityBuilder()
+                .at(base.getPosicao().getX(),
+                    base.getPosicao().getY(),
+                    base.getPosicao().getZ())
+                .view(base.getModelo())
+                .buildAndAttach();
+    }
+
+    private void criarNaveInimiga() {
+        for (NaveInimiga inimigo : inimigos) {
+            Entity naveInimiga = entityBuilder()
+                    .at(inimigo.getPosicao().getX(),
+                        inimigo.getPosicao().getY(),
+                        inimigo.getPosicao().getZ())
+                    .view(inimigo.getModelo())
+                    .buildAndAttach();
+            naveInimigas.add(naveInimiga);
+        }
+    }
+
+    private void atualizarRotacaoInimigo(NaveInimiga inimigo, Entity naveInimiga) {
+        Point3D direcao = inimigo.getDirecao().normalize();
+
+        double yaw = Math.toDegrees(
+            Math.atan2(direcao.getX(), direcao.getZ())
+        );
+
+        double pitch = Math.toDegrees(
+            Math.asin(direcao.getY())
+        );
+
+        TransformComponent transform =
+                naveInimiga.getTransformComponent();
+
+        transform.setRotationY(yaw);
+        transform.setRotationX(-pitch);
+    }
+
+ 
+    public void atualizar(double tpf) {
+        nave.atualizar(tpf, camera.getTransform().getPosition3D());
+        
+        TransformComponent transform = camera.getTransform();
+        transform.translate3D(transform.getDirection3D().multiply(nave.getVelocidade() * tpf));
+        reposicionarEstrelas(transform.getPosition3D());
+
+        atualizarInimigos(tpf);
+        atualizarMeteoros(tpf);
+        if (hud != null) {
+            hud.atualizar(nave, tpf);
+        }
+    }
+
     public void alternarMapa() {
         gerenciadorMapa.alternarMapa();
     }
 
-
-    private void entrarNoSetor(Setor setor) {
-       
+    private void entrarNoSetor(Setor setor) {       
         for (Entity meteoro : getGameWorld().getEntitiesByType(TipoEntidade.METEORO)) {
             meteoro.removeFromWorld();
         }
@@ -104,20 +178,6 @@ public class ModoTesteDeVoo {
         tempoProximoMeteoro = 1.0;
 
        
-    }
-
- 
-    public void atualizar(double tpf) {
-        nave.atualizar(tpf);
-        TransformComponent transform = camera.getTransform();
-        transform.translate3D(transform.getDirection3D().multiply(nave.getVelocidade() * tpf));
-        aplicarRecuo(tpf);
-        reposicionarEstrelas(transform.getPosition3D());
-        atualizarMeteoros(tpf);
-        gerenciadorMapa.atualizar(tpf);
-        if (hud != null) {
-            hud.atualizar(nave, tpf);
-        }
     }
 
 
@@ -165,6 +225,39 @@ public class ModoTesteDeVoo {
                 .buildAndAttach();
     }
 
+    public void atirar(NaveInimiga inimigo, Entity naveInimigo){
+        /*System.out.println("Direção lógica: " + inimigo.getDirecao());
+        System.out.println("Direção da entidade: " +
+        naveInimigo.getTransformComponent().getDirection3D()); */
+
+        if(!inimigo.atirar()){
+            return;
+        }
+        TransformComponent transform = naveInimigo.getTransformComponent();
+        Point3D frente = inimigo.getDirecao();//transform.getDirection3D();
+        Point3D cima = transform.getUp3D();
+        Point3D direita = frente.crossProduct(cima).normalize();
+        double lado = inimigo.isCanhaoEsquerdo()? -CANHAO_LADO : CANHAO_LADO; // condição valor se verdadeiro ? valor se falso
+        inimigo.trocarCanhao();
+
+    
+        Point3D saida = transform.getPosition3D()
+                .add(frente.multiply(CANHAO_FRENTE))
+                .add(direita.multiply(lado))
+                .subtract(cima.multiply(CANHAO_ABAIXO));
+
+        Cylinder laser = new Cylinder(0.45, 16);
+        laser.setMaterial(new PhongMaterial(Color.web("#00ff22")));
+        apontar(laser, frente);
+
+        entityBuilder()
+                .type(TipoEntidade.TIRO)
+                .at(saida)
+                .view(laser)
+                .with(new ComponenteTiro(frente.multiply(VELOCIDADE_TIRO + inimigo.getVelocidade()), DURACAO_TIRO))
+                .buildAndAttach();
+    }
+
    
     public void simularDano() {
         int dano = aleatorio.nextInt(151);
@@ -185,6 +278,28 @@ public class ModoTesteDeVoo {
     private double entre(double minimo, double maximo){
         return minimo+aleatorio.nextDouble() * (maximo - minimo);
     }
+
+    private void atualizarInimigos(double tpf){
+        for (int i = 0; i < inimigos.size(); i++){
+            NaveInimiga inimigo = inimigos.get(i);
+            Entity naveInimiga = naveInimigas.get(i);
+
+            inimigo.atualizar(tpf, nave.getPosicao());
+
+            naveInimiga.getTransformComponent().setPosition3D(
+                inimigo.getPosicao().getX(),
+                inimigo.getPosicao().getY(),
+                inimigo.getPosicao().getZ()
+            );
+
+            atualizarRotacaoInimigo(inimigo, naveInimiga);
+
+            if (inimigo.getEstado() == EstadoInimigo.ATAQUE) {
+                atirar(inimigo, naveInimiga);
+            }
+        }
+    }
+
     private void atualizarMeteoros(double tpf){
         TransformComponent transform = camera.getTransform();
         Point3D posicaoNave = transform.getPosition3D();
