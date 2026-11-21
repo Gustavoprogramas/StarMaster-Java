@@ -134,6 +134,14 @@ public class NaveJogador extends Nave {
         return energiaMaxima;
     }
 
+    public double getX() {
+        return posicao.getX();
+    }
+
+    public double getY() {
+        return posicao.getY();
+    }
+
     public Point3D getPosicao() {
         return posicao;
     }
