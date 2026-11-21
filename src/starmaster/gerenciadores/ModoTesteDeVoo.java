@@ -22,6 +22,7 @@ import javafx.scene.transform.Rotate;
 import starmaster.entidades.BaseEspacial;
 import starmaster.entidades.NaveInimiga;
 import starmaster.entidades.NaveJogador;
+import starmaster.mapa.MapaGalactico;
 import starmaster.mapa.Setor;
 import starmaster.mapa.TipoDeSetor;
 import starmaster.uteis.GerarAleatorio;
@@ -45,8 +46,8 @@ public class ModoTesteDeVoo {
     private static final int MAX_METEOROS = 25;
     private static final double FORCA_RECUO = 300;
     private static final double AMORTECIMENTO = 2;
-    private static final int MAX_BASES = 1;
-    private static final int MAX_INIMIGOS = 1;
+    private static final int MAX_BASES = 5;
+    private static final int MAX_INIMIGOS = 20;
     private double tempoProximoMeteoro = 1.0;
 
     private final NaveJogador nave = new NaveJogador();
@@ -63,27 +64,61 @@ public class ModoTesteDeVoo {
     private Point3D recuo = Point3D.ZERO;
 
     public void iniciar() {
+        gerenciadorMapa = new GerenciadorMapa(nave, this::entrarNoSetor);
+        MapaGalactico mapa = gerenciadorMapa.getMapa();
         getGameScene().setBackgroundColor(Color.BLACK);
         camera = getGameScene().getCamera3D();
         camera.getPerspectiveCamera().setFarClip(4000);
         camera.getPerspectiveCamera().setNearClip(0.5);
-        camera.getTransform().setPosition3D(0, 0, 0);
 
-        for (int i = 0; i < MAX_INIMIGOS; i++) {
-            inimigos.add(new NaveInimiga());
-        }
-        criarNaveInimiga();
+                Setor setoratl = gerenciadorMapa.getSetorAtual();
+                int latl = setoratl.getLinha();
+                int catl = setoratl.getColuna();
 
-        for (int i = 0; i < MAX_BASES; i++) {
-            BaseEspacial base = new BaseEspacial();
-            bases.add(base);
-            nave.setPosicaoBase(base.getPosicao());
-            for (NaveInimiga inimigo : inimigos) {
-                inimigo.setPosicaoBase(base.getPosicao());
+
+        camera.getTransform().setPosition3D(latl*1000, 0, catl*1000);
+        //Point3D posicaoInicial = new Point3D(0, 0, 0);
+        
+        
+
+        // for (int i = 0; i < MAX_INIMIGOS; i++) {
+        //     inimigos.add(new NaveInimiga());
+        // }
+        // criarNaveInimiga();
+
+        // for (int i = 0; i < MAX_BASES; i++) {
+        //   BaseEspacial base = new BaseEspacial();
+        //    bases.add(base);
+        //     nave.setPosicaoBase(base.getPosicao());
+        //     for (NaveInimiga inimigo : inimigos) {
+        //         inimigo.setPosicaoBase(base.getPosicao());
+        //     }
+        //     criarBase(base);
+        // }
+
+        int xis, ypsulon;
+        for (int i = 0; i< mapa.getLinhas(); i++){
+            for (int j = 0; j< mapa.getColunas(); j++){
+                Setor setor = mapa.getSetor(i,j);
+                if (setor.getTipo() == TipoDeSetor.BASE){
+                    BaseEspacial base = new BaseEspacial();
+                    xis = 500 + i * 1000;
+                    ypsulon = 500 + j * 1000;
+                    Point3D posicaoBase = new Point3D(xis, ypsulon, 0);
+                    base.setPosicao(posicaoBase);
+                    bases.add(base);
+                    criarBase(base);
+                }
+                
+                if(setor.getTipo() == TipoDeSetor.INIMIGO){
+                    for(int w = 0; w < MAX_INIMIGOS; w++){
+                    NaveInimiga inimigo = new NaveInimiga();
+                    inimigos.add(inimigo);
+                    }
+                    criarNaveInimiga();
+                }
             }
-            criarBase(base);
         }
-
 
         entityBuilder().view(new AmbientLight(Color.WHITE)).buildAndAttach();
 
@@ -99,13 +134,12 @@ public class ModoTesteDeVoo {
                     .view(estrela)
                     .buildAndAttach());
         }
-        gerenciadorMapa = new GerenciadorMapa(nave, this::entrarNoSetor);
+        gerenciadorMapa.adicionarNaTela();
     }
 
     public void criarHud() {
         hud = new HudTesteDeVoo();
         hud.adicionar();
-        gerenciadorMapa.adicionarNaTela();
     }
 
     private void criarBase(BaseEspacial base) {
@@ -150,6 +184,7 @@ public class ModoTesteDeVoo {
  
     public void atualizar(double tpf) {
         nave.atualizar(tpf, camera.getTransform().getPosition3D());
+        gerenciadorMapa.atualizarMiniMapa();
         
         TransformComponent transform = camera.getTransform();
         transform.translate3D(transform.getDirection3D().multiply(nave.getVelocidade() * tpf));
@@ -157,17 +192,13 @@ public class ModoTesteDeVoo {
 
         atualizarInimigos(tpf);
         atualizarMeteoros(tpf);
-        gerenciadorMapa.atualizar(tpf);    
         if (hud != null) {
             hud.atualizar(nave, tpf);
         }
     }
 
     public void alternarMapa() {
-
-        if (miniMapa!= null) {
         gerenciadorMapa.alternarMapa();
-        }
     }
 
     private void entrarNoSetor(Setor setor) {       
