@@ -105,6 +105,7 @@ public class ModoTesteDeVoo {
     public void criarHud() {
         hud = new HudTesteDeVoo();
         hud.adicionar();
+        gerenciadorMapa.adicionarNaTela();
     }
 
     private void criarBase(BaseEspacial base) {
@@ -156,13 +157,17 @@ public class ModoTesteDeVoo {
 
         atualizarInimigos(tpf);
         atualizarMeteoros(tpf);
+        gerenciadorMapa.atualizar(tpf);    
         if (hud != null) {
             hud.atualizar(nave, tpf);
         }
     }
 
     public void alternarMapa() {
+
+        if (miniMapa!= null) {
         gerenciadorMapa.alternarMapa();
+        }
     }
 
     private void entrarNoSetor(Setor setor) {       
