@@ -15,6 +15,8 @@ import starmaster.mapa.MapaGalactico;
 import starmaster.mapa.Navegador;
 import starmaster.mapa.Setor;
 import starmaster.ui.MiniMapa;
+import starmaster.entidades.NaveJogador;
+
 
 public class GerenciadorMapa {
 
@@ -137,8 +139,28 @@ public class GerenciadorMapa {
         return nome + " · custa " + custo + " de energia";
     }
 
+    public void atualizarMiniMapa(){
+        double x = nave.getX();
+        double y = nave.getY();
+        int coluna = (int) (y / 1000);
+        int linha = (int) (x / 1000);
+        if(linha != setorAtual.getLinha() || coluna != setorAtual.getColuna()){
+            Setor novoSetor = mapa.getSetor(linha, coluna);
+            setorAtual = novoSetor;
+            rota = navegador.rotaAteBaseMaisProxima(setorAtual);
+            aoEntrarNoSetor.accept(novoSetor);
+            if (miniMapa != null) {
+                miniMapa.desenho(mapa, setorAtual, rota);
+            }
+        }
+    } 
+
     public Setor getSetorAtual() {
         return setorAtual;
+    }
+
+    public MapaGalactico getMapa() {
+        return mapa;
     }
 
     public List<Setor> getRota() {
