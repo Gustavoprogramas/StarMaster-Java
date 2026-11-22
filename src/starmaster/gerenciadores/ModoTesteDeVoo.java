@@ -71,6 +71,8 @@ public class ModoTesteDeVoo {
         camera = getGameScene().getCamera3D();
         camera.getPerspectiveCamera().setFarClip(4000);
         camera.getPerspectiveCamera().setNearClip(0.5);
+        Point3D posicaoBase = new Point3D(xis, 0, ypsulon);
+        NaveInimiga inimigo = new NaveInimiga(new Point3D(xis, GerarAleatorio.gerarReal() * 200 - 100, ypsulon));
 
                 Setor setoratl = gerenciadorMapa.getSetorAtual();
                 int latl = setoratl.getLinha();
