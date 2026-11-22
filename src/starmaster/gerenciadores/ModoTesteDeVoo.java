@@ -198,6 +198,7 @@ public class ModoTesteDeVoo {
         atualizarColisoesInimigos(tpf);
         atualizarColisaoJogador(tpf);
         atualizarColisaoBases(tpf);
+        gerenciadorMapa.atualizar(tpf);
         if (hud != null) {
             hud.atualizar(nave, tpf);
         }
@@ -208,6 +209,14 @@ public class ModoTesteDeVoo {
     }
 
     private void entrarNoSetor(Setor setor) {       
+        Point3D pos = camera.getTransform().getPosition3D();
+        int linhaNave = (int) Math.floor(pos.getX() / 1000);
+        int colunaNave = (int) Math.floor(pos.getZ() / 1000);
+        if (linhaNave != setor.getLinha() || colunaNave != setor.getColuna()) {
+            camera.getTransform().setPosition3D(setor.getLinha() * 1000 + 500, 0, setor.getColuna() * 1000 + 100);
+            camera.getTransform().setRotationY(0);
+            camera.getTransform().setRotationX(0);
+        }
         for (Entity meteoro : getGameWorld().getEntitiesByType(TipoEntidade.METEORO)) {
             meteoro.removeFromWorld();
         }
