@@ -16,6 +16,7 @@ import starmaster.mapa.Navegador;
 import starmaster.mapa.Setor;
 import starmaster.ui.MiniMapa;
 import starmaster.entidades.NaveJogador;
+import javafx.geometry.Point3D;
 
 
 public class GerenciadorMapa {
@@ -140,15 +141,16 @@ public class GerenciadorMapa {
     }
 
     public void atualizarMiniMapa(){
-        double x = nave.getX();
-        double y = nave.getY();
-        int coluna = (int) (y / 1000);
-        int linha = (int) (x / 1000);
-        if(linha != setorAtual.getLinha() || coluna != setorAtual.getColuna()){
-            Setor novoSetor = mapa.getSetor(linha, coluna);
-            setorAtual = novoSetor;
+        Point3D posicao = nave.getPosicao();
+        int linha = (int) Math.floor(posicao.getX() / 1000);
+        int coluna = (int) Math.floor(posicao.getZ() / 1000);   
+        if (linha < 0 || linha >= mapa.getLinhas() || coluna < 0 || coluna >= mapa.getColunas()) {
+            return;   
+        }
+        if (linha != setorAtual.getLinha() || coluna != setorAtual.getColuna()) {
+            setorAtual = mapa.getSetor(linha, coluna);
             rota = navegador.rotaAteBaseMaisProxima(setorAtual);
-            aoEntrarNoSetor.accept(novoSetor);
+            aoEntrarNoSetor.accept(setorAtual);
             if (miniMapa != null) {
                 miniMapa.desenho(mapa, setorAtual, rota);
             }
