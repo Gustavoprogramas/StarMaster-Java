@@ -17,10 +17,11 @@ public class BaseEspacial extends EntidadeJogo{
     private final int ESCUDO_MAXIMO = 1000;
     private final int VIDA_MAXIMA = 500;
     private final double INTERVALO_REGENERACAO = 1.5;
+    private final double RAIO_BASE = 8.0;
     
     private int escudo;
     private int vida;
-    private Point3D posicao = GerarAleatorio.gerarPonto();
+    private Point3D posicao;
 
     private double tempoRegeneracao;
 
@@ -61,6 +62,23 @@ public class BaseEspacial extends EntidadeJogo{
         return p.normalize();
     }
 
+    public void receberDano(int quantidade){
+        if(quantidade <= 0 || estaDestruido()){
+            return;
+        }
+        escudo = Math.max(0, escudo - quantidade);
+        if(escudo == 0){
+            vida--;
+            if(vida <= 0){
+                desativar();
+            }
+        }
+    }
+
+    public boolean estaDestruido(){
+        return vida <= 0;
+    }
+
     public int getVida(){
         return vida;
     }
@@ -75,5 +93,13 @@ public class BaseEspacial extends EntidadeJogo{
 
     public Group getModelo(){
         return modelo;
+    }
+
+    public double getRaio(){
+        return RAIO_BASE;
+    }
+
+    public void setPosicao(Point3D pos){
+        this.posicao = pos;
     }
 }

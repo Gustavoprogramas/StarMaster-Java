@@ -6,7 +6,7 @@ public class NaveJogador extends Nave {
 
     public static final int ENERGIA_MAXIMA = 1000;
     public static final int ESCUDO_MAXIMO = 100;
-    public static final int PODER_DE_FOGO = 20;
+    public static final int PODER_DE_FOGO = 40;
 
     public static final double VELOCIDADE_INICIAL = 10;     
     public static final double VELOCIDADE_MAXIMA = 100;
@@ -114,6 +114,7 @@ public class NaveJogador extends Nave {
         velocidade = 0;
         tempoColisao = TEMPO_COLISAO;
     }
+    
     public boolean isColidido() {
         return tempoColisao > 0;
     }

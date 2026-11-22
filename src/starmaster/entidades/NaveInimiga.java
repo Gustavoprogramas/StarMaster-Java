@@ -7,7 +7,7 @@ import starmaster.modelos.ModeloNave;
 import starmaster.uteis.GerarAleatorio;
 
 public class NaveInimiga extends Nave {
-    private static final int ESCUDO_MAXIMO = 100;
+    private static final int ESCUDO_MAXIMO = 80;
     private static final int PODER_DE_FOGO = 10;
 
     private static final double VELOCIDADE_INICIAL = 10;
@@ -23,8 +23,8 @@ public class NaveInimiga extends Nave {
     private boolean desviar = false;
     private Point3D direcaoDesvio = new Point3D(0,0,0);
 
-    private static final double TEMPO_DE_ATAQUE = 8.0;
-    private static final double INTERVALO_TIRO = 0.15;
+    private static final double TEMPO_DE_ATAQUE = 4.0;
+    private static final double INTERVALO_TIRO = 0.30;
     private static final double INTERVALO_REGENERACAO = 1.0;
 
     private EstadoInimigo estado = EstadoInimigo.PERSEGUICAO;
@@ -38,12 +38,16 @@ public class NaveInimiga extends Nave {
     private Point3D direcaoDesejada = new Point3D(0,0,0);
     private double distanciaAlvo = 0.0;
 
-    public NaveInimiga(){
-        super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO, GerarAleatorio.gerarPonto());
+    public NaveInimiga(Point3D posicaoInicial) {
+        super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO, posicaoInicial);
     }
 
     @Override
     public void atualizar(double tpf, Point3D novaPosicao) {
+        if(!isAtivo()){
+            return;
+        }
+
         tempoDesdeTiro += tpf;
 
         Point3D posicaoAlvo = definirAlvo(novaPosicao);
@@ -215,16 +219,6 @@ public class NaveInimiga extends Nave {
             return true;
         }
         return false;
-    }
-
-    @Override 
-    public void receberDano(int quantidade){
-
-    }
-
-    @Override 
-    public boolean estaDestruido(){
-        return this.escudo <= 0;
     }
 
     public Point3D getPosicao() {

@@ -9,10 +9,12 @@ public class ComponenteTiro extends Component {
 
     private final Point3D velocidade;
     private double tempoRestante;
+    private boolean tiroJogador;
 
-    public ComponenteTiro(Point3D velocidade, double duracao) {
+    public ComponenteTiro(Point3D velocidade, double duracao, boolean tiroJogador) {
         this.velocidade = velocidade;
         this.tempoRestante = duracao;
+        this.tiroJogador = tiroJogador;
     }
     public Point3D getVelocidade() {
         return velocidade;
@@ -25,5 +27,9 @@ public class ComponenteTiro extends Component {
         if (tempoRestante <= 0) {
             entity.removeFromWorld();
         }
+    }
+
+    public boolean isTiroJogador() {
+        return tiroJogador;
     }
 }

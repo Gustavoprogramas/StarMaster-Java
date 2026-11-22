@@ -32,7 +32,7 @@ public class ModoTesteDeVoo {
 
     private static final int ESTRELAS = 900;
     private static final double METADE_CAMPO = 900;        
-    private static final double GIRO_POR_SEGUNDO = 20;      
+    private static final double GIRO_POR_SEGUNDO = 40;      
     private static final double VELOCIDADE_TIRO = 200;
     private static final double DURACAO_TIRO = 10.0;
     private static final double INCLINACAO_MAXIMA = 45;
@@ -46,8 +46,9 @@ public class ModoTesteDeVoo {
     private static final int MAX_METEOROS = 25;
     private static final double FORCA_RECUO = 300;
     private static final double AMORTECIMENTO = 2;
-    private static final int MAX_BASES = 5;
-    private static final int MAX_INIMIGOS = 20;
+    //private static final int MAX_BASES = 5;
+    private static final int MAX_INIMIGOS = 5;
+    private static final double RAIO_INIMIGO = 4;
     private double tempoProximoMeteoro = 1.0;
 
     private final NaveJogador nave = new NaveJogador();
@@ -112,13 +113,15 @@ public class ModoTesteDeVoo {
                 
                 if(setor.getTipo() == TipoDeSetor.INIMIGO){
                     for(int w = 0; w < MAX_INIMIGOS; w++){
-                    NaveInimiga inimigo = new NaveInimiga();
+                    xis = 500 + i * 1000;
+                    ypsulon = 500 + j * 1000;
+                    NaveInimiga inimigo = new NaveInimiga(new Point3D(xis, ypsulon, GerarAleatorio.gerarReal() * 1000 - 500));
                     inimigos.add(inimigo);
                     }
-                    criarNaveInimiga();
                 }
             }
         }
+        criarNaveInimiga();
 
         entityBuilder().view(new AmbientLight(Color.WHITE)).buildAndAttach();
 
@@ -192,6 +195,9 @@ public class ModoTesteDeVoo {
 
         atualizarInimigos(tpf);
         atualizarMeteoros(tpf);
+        atualizarColisoesInimigos(tpf);
+        atualizarColisaoJogador(tpf);
+        atualizarColisaoBases(tpf);
         if (hud != null) {
             hud.atualizar(nave, tpf);
         }
@@ -257,7 +263,7 @@ public class ModoTesteDeVoo {
                 .type(TipoEntidade.TIRO)
                 .at(saida)
                 .view(laser)
-                .with(new ComponenteTiro(frente.multiply(VELOCIDADE_TIRO + nave.getVelocidade()), DURACAO_TIRO))
+                .with(new ComponenteTiro(frente.multiply(VELOCIDADE_TIRO + nave.getVelocidade()), DURACAO_TIRO,true))
                 .buildAndAttach();
     }
 
@@ -290,7 +296,7 @@ public class ModoTesteDeVoo {
                 .type(TipoEntidade.TIRO)
                 .at(saida)
                 .view(laser)
-                .with(new ComponenteTiro(frente.multiply(VELOCIDADE_TIRO + inimigo.getVelocidade()), DURACAO_TIRO))
+                .with(new ComponenteTiro(frente.multiply(VELOCIDADE_TIRO + inimigo.getVelocidade()), DURACAO_TIRO, false))
                 .buildAndAttach();
     }
 
@@ -317,6 +323,10 @@ public class ModoTesteDeVoo {
 
     private void atualizarInimigos(double tpf){
         for (int i = 0; i < inimigos.size(); i++){
+            if(!inimigos.get(i).isAtivo()){
+                continue;
+            }
+
             NaveInimiga inimigo = inimigos.get(i);
             Entity naveInimiga = naveInimigas.get(i);
 
@@ -398,6 +408,116 @@ public class ModoTesteDeVoo {
         }
         
     }
+
+    private void atualizarColisoesInimigos(double tpf) {
+        List<Entity> tiros = getGameWorld().getEntitiesByType(TipoEntidade.TIRO);
+
+        for (Entity tiro : tiros) {
+
+            ComponenteTiro dadosTiro = tiro.getComponent(ComponenteTiro.class);
+            if (!dadosTiro.isTiroJogador()) {
+                continue;
+            }
+
+            Point3D velocidade = dadosTiro.getVelocidade();
+            Point3D direcao = velocidade.normalize();
+
+            Point3D pontaTras = tiro.getPosition3D().subtract(velocidade.multiply(tpf)).subtract(direcao.multiply(MEIO_LASER));
+
+            Point3D pontaFrente = tiro.getPosition3D().add(direcao.multiply(MEIO_LASER));
+
+            for (int i = 0; i < inimigos.size(); i++) {
+
+                NaveInimiga inimigo = inimigos.get(i);
+                Entity entidadeInimiga = naveInimigas.get(i);
+
+                if (inimigo.estaDestruido()) {
+                    continue;
+                }
+
+                double distancia = distanciaAteSegmento(entidadeInimiga.getPosition3D(),pontaTras,pontaFrente);
+
+                if (distancia < RAIO_INIMIGO + RAIO_LASER) {
+                    Point3D pontoImpacto = tiro.getPosition3D();
+                    tiro.removeFromWorld();
+                    inimigo.receberDano(nave.getPoderDeFogo());
+                    if (inimigo.estaDestruido()) {
+                        Explosao.criar(
+                            entidadeInimiga.getPosition3D(),
+                            RAIO_INIMIGO
+                        );
+                        entidadeInimiga.removeFromWorld();
+                    } else {
+                        Explosao.criar(pontoImpacto, 1.5);
+                    }
+                }
+            }
+        }
+    }
+
+    private void atualizarColisaoJogador(double tpf) {
+        List<Entity> tiros = getGameWorld().getEntitiesByType(TipoEntidade.TIRO);
+
+        for (Entity tiro : tiros) {
+
+            ComponenteTiro dadosTiro = tiro.getComponent(ComponenteTiro.class);
+            if (dadosTiro.isTiroJogador()) {
+                continue;
+            }
+
+            Point3D velocidade = dadosTiro.getVelocidade();
+            Point3D direcao = velocidade.normalize();
+
+            Point3D pontaTras = tiro.getPosition3D().subtract(velocidade.multiply(tpf)).subtract(direcao.multiply(MEIO_LASER));
+
+            Point3D pontaFrente = tiro.getPosition3D().add(direcao.multiply(MEIO_LASER));
+
+            double distancia = distanciaAteSegmento(nave.getPosicao(), pontaTras, pontaFrente);
+
+            if (distancia < RAIO_NAVE + RAIO_LASER) {
+                Point3D pontoImpacto = tiro.getPosition3D();
+                tiro.removeFromWorld();
+                nave.receberDano(inimigos.get(0).getPoderDeFogo()); 
+                //nave.sofrerImpacto();
+                //empurrarParaLonge(tiro.getPosition3D(), nave.getPosicao());
+                if (hud != null) {
+                    hud.piscarDano();
+                }
+                Explosao.criar(pontoImpacto, 1.5);
+            }
+        }
+    }
+
+    private void atualizarColisaoBases(double tpf) {
+        List<Entity> tiros = getGameWorld().getEntitiesByType(TipoEntidade.TIRO);
+
+        for (Entity tiro : tiros) {
+
+            ComponenteTiro dadosTiro = tiro.getComponent(ComponenteTiro.class);
+            if (dadosTiro.isTiroJogador()) {
+                continue;
+            }
+
+            Point3D velocidade = dadosTiro.getVelocidade();
+            Point3D direcao = velocidade.normalize();
+
+            Point3D pontaTras = tiro.getPosition3D().subtract(velocidade.multiply(tpf)).subtract(direcao.multiply(MEIO_LASER));
+
+            Point3D pontaFrente = tiro.getPosition3D().add(direcao.multiply(MEIO_LASER));
+
+            for (BaseEspacial base : bases) {
+                double distancia = distanciaAteSegmento(base.getPosicao(), pontaTras, pontaFrente);
+
+                if (distancia < base.getRaio() + RAIO_LASER) {
+                    Point3D pontoImpacto = tiro.getPosition3D();
+                    tiro.removeFromWorld();
+                    base.receberDano(inimigos.get(0).getPoderDeFogo());
+                    Explosao.criar(pontoImpacto, 1.5);
+                }
+            }
+        }
+    }
+
     private void empurrarParaLonge(Point3D posicaoMeteoro, Point3D posicaoNave){
         Point3D direcao = posicaoNave.subtract(posicaoMeteoro);
         if (direcao.magnitude() < 1e-6){
@@ -405,6 +525,7 @@ public class ModoTesteDeVoo {
         }
         recuo = direcao.normalize().multiply(FORCA_RECUO);
     }
+
     private void aplicarRecuo(double tpf){
         if (recuo.magnitude()<0.5){
             recuo = Point3D.ZERO;
@@ -414,7 +535,8 @@ public class ModoTesteDeVoo {
         camera.getTransform().translate3D(recuo.multiply(tpf));
         recuo = recuo.multiply(Math.exp(-AMORTECIMENTO * tpf));
     }
-      private void criarMeteoro(TransformComponent transform) {
+
+    private void criarMeteoro(TransformComponent transform) {
         Point3D frente = transform.getDirection3D();
         Point3D cima = transform.getUp3D();
         Point3D direita = frente.crossProduct(cima).normalize();
@@ -439,6 +561,7 @@ public class ModoTesteDeVoo {
                 .with(meteoro)
                 .buildAndAttach();
     }
+
     private static double distanciaAteSegmento(Point3D ponto, Point3D a, Point3D b) {
         Point3D ab = b.subtract(a);
         double comprimento2 = ab.dotProduct(ab);
