@@ -71,8 +71,7 @@ public class ModoTesteDeVoo {
         camera = getGameScene().getCamera3D();
         camera.getPerspectiveCamera().setFarClip(4000);
         camera.getPerspectiveCamera().setNearClip(0.5);
-        Point3D posicaoBase = new Point3D(xis, 0, ypsulon);
-        NaveInimiga inimigo = new NaveInimiga(new Point3D(xis, GerarAleatorio.gerarReal() * 200 - 100, ypsulon));
+
 
                 Setor setoratl = gerenciadorMapa.getSetorAtual();
                 int latl = setoratl.getLinha();
@@ -107,7 +106,7 @@ public class ModoTesteDeVoo {
                     BaseEspacial base = new BaseEspacial();
                     xis = 500 + i * 1000;
                     ypsulon = 500 + j * 1000;
-                    Point3D posicaoBase = new Point3D(xis, ypsulon, 0);
+                    Point3D posicaoBase = new Point3D(xis, 0, ypsulon);
                     base.setPosicao(posicaoBase);
                     bases.add(base);
                     criarBase(base);
@@ -117,7 +116,7 @@ public class ModoTesteDeVoo {
                     for(int w = 0; w < MAX_INIMIGOS; w++){
                     xis = 500 + i * 1000;
                     ypsulon = 500 + j * 1000;
-                    NaveInimiga inimigo = new NaveInimiga(new Point3D(xis, ypsulon, GerarAleatorio.gerarReal() * 1000 - 500));
+                    NaveInimiga inimigo = new NaveInimiga(new Point3D(xis, GerarAleatorio.gerarReal() * 200 - 100, ypsulon));
                     inimigos.add(inimigo);
                     }
                 }
