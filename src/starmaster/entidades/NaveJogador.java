@@ -8,16 +8,19 @@ public class NaveJogador extends Nave {
     public static final int ESCUDO_MAXIMO = 100;
     public static final int PODER_DE_FOGO = 40;
 
-    public static final double VELOCIDADE_INICIAL = 10;     
-    public static final double VELOCIDADE_MAXIMA = 100;
-    public static final double ACELERACAO = 40;            
+    public static final double VELOCIDADE_INICIAL = 10;
+    public static final double VELOCIDADE_MINIMA = 20;
+    public static final double VELOCIDADE_CRUZEIRO = 60;
+    public static final double VELOCIDADE_MAXIMA = 120;
+    public static final double ACELERACAO = 50;
+    private static final double AJUSTE_VELOCIDADE = 80;
     private static final double VELOCIDADE_SEM_ENERGIA = 15;
-    private static final double TEMPO_COLISAO = 2.7;
-
+    private static final double TEMPO_COLISAO = 1.2;
+    private static final double FREIO_ATRACAGEM = 150;
 
     private static final int CUSTO_TIRO = 5;
-    private static final double INTERVALO_TIRO = 0.15;    
-    private static final double CONSUMO_VOO = 3;          
+    private static final double INTERVALO_TIRO = 0.15;
+    private static final double CONSUMO_VOO = 3;
     private static final double INTERVALO_REGENERACAO = 0.5;
 
     private int energia;
@@ -26,9 +29,11 @@ public class NaveJogador extends Nave {
     private double consumoAcumulado;
     private double tempoRegeneracao;
     private double tempoColisao;
+    private double velocidadeAlvo = VELOCIDADE_CRUZEIRO;
+    private boolean atracando;
 
     public NaveJogador() {
-        super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO, new Point3D(0,0,0));
+        super(ESCUDO_MAXIMO, VELOCIDADE_INICIAL, PODER_DE_FOGO, new Point3D(0, 0, 0));
         this.energiaMaxima = ENERGIA_MAXIMA;
         this.energia = ENERGIA_MAXIMA;
     }
@@ -36,23 +41,33 @@ public class NaveJogador extends Nave {
     @Override
     public void atualizar(double tpf, Point3D novaPosicao) {
         posicao = novaPosicao;
-        //System.out.println("Nave na posição " + posicao);
         tempoDesdeTiro += tpf;
+
+        if (tempoColisao > 0) {
+            tempoColisao -= tpf;
+            return;
+        }
+        if (atracando) {
+            velocidade = Math.max(0, velocidade - FREIO_ATRACAGEM * tpf);
+            return;
+        }
         if (semEnergia()) {
-        
             velocidade = Math.max(VELOCIDADE_SEM_ENERGIA, velocidade - ACELERACAO * tpf);
             return;
         }
-        velocidade = Math.min(VELOCIDADE_MAXIMA, velocidade + ACELERACAO * tpf);
 
-       
+        if (velocidade < velocidadeAlvo) {
+            velocidade = Math.min(velocidadeAlvo, velocidade + ACELERACAO * tpf);
+        } else {
+            velocidade = Math.max(velocidadeAlvo, velocidade - ACELERACAO * tpf);
+        }
+
         consumoAcumulado += CONSUMO_VOO * (velocidade / VELOCIDADE_MAXIMA) * tpf;
         if (consumoAcumulado >= 1) {
             int inteiro = (int) consumoAcumulado;
             consumirEnergia(inteiro);
             consumoAcumulado -= inteiro;
         }
-
 
         tempoRegeneracao += tpf;
         if (tempoRegeneracao >= INTERVALO_REGENERACAO) {
@@ -62,6 +77,11 @@ public class NaveJogador extends Nave {
                 consumirEnergia(1);
             }
         }
+    }
+
+    public void ajustarVelocidade(int sentido, double tpf) {
+        velocidadeAlvo = Math.max(VELOCIDADE_MINIMA,
+                Math.min(VELOCIDADE_MAXIMA, velocidadeAlvo + sentido * AJUSTE_VELOCIDADE * tpf));
     }
 
     @Override
@@ -74,7 +94,6 @@ public class NaveJogador extends Nave {
         return true;
     }
 
-    
     @Override
     public void receberDano(int quantidade) {
         if (quantidade <= 0) {
@@ -86,37 +105,40 @@ public class NaveJogador extends Nave {
         consumirEnergia(quantidade / 2 + excedente * 3);
     }
 
-
     @Override
     public boolean estaDestruido() {
         return semEnergia();
     }
 
-  
     public void recarregar() {
         energia = energiaMaxima;
         escudo = escudoMaximo;
         ativo = true;
     }
 
-
     public boolean gastarEnergia(int quantidade) {
-        if (quantidade> energia){
+        if (quantidade > energia) {
             return false;
         }
         consumirEnergia(quantidade);
-            return true;
-        
+        return true;
     }
-
 
     public void sofrerImpacto() {
         velocidade = 0;
         tempoColisao = TEMPO_COLISAO;
     }
-    
+
     public boolean isColidido() {
         return tempoColisao > 0;
+    }
+
+    public void setAtracando(boolean atracando) {
+        this.atracando = atracando;
+    }
+
+    public boolean isAtracando() {
+        return atracando;
     }
 
     public boolean semEnergia() {
@@ -135,12 +157,8 @@ public class NaveJogador extends Nave {
         return energiaMaxima;
     }
 
-    public double getX() {
-        return posicao.getX();
-    }
-
-    public double getY() {
-        return posicao.getY();
+    public double getVelocidadeAlvo() {
+        return velocidadeAlvo;
     }
 
     public Point3D getPosicao() {

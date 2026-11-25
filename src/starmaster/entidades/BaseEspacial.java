@@ -4,47 +4,55 @@ import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Box;
+import javafx.scene.shape.Cylinder;
 import javafx.scene.transform.Rotate;
 import starmaster.uteis.GerarAleatorio;
-import javafx.scene.shape.Box;
 
-public class BaseEspacial extends EntidadeJogo{
+public class BaseEspacial extends EntidadeJogo {
     private static final Color[] CORES_NAVE = {
         Color.web("#d400ff"), Color.web("#991687"), Color.web("rgb(193, 22, 216)"), Color.web("rgb(223, 139, 240)")
     };
 
-    private Group modelo = new Group();
+    public static final double RAIO_ATRACAGEM = 300;
+    public static final double TEMPO_ATRACAGEM = 3.0;
+
+    private final Group modelo = new Group();
     private final int ESCUDO_MAXIMO = 1000;
     private final int VIDA_MAXIMA = 500;
     private final double INTERVALO_REGENERACAO = 1.5;
-    private final double RAIO_BASE = 8.0;
-    
+    private final double RAIO_BASE = 30.0;
+
     private int escudo;
     private int vida;
     private Point3D posicao;
 
     private double tempoRegeneracao;
 
-    public BaseEspacial(){
+    public BaseEspacial() {
         escudo = ESCUDO_MAXIMO;
         vida = VIDA_MAXIMA;
         montarModelo();
     }
 
-    @Override 
-    public void atualizar(double tpf, Point3D novaPosicao){
+    @Override
+    public void atualizar(double tpf, Point3D novaPosicao) {
         tempoRegeneracao += tpf;
-        if(tempoRegeneracao >= INTERVALO_REGENERACAO){
+        if (tempoRegeneracao >= INTERVALO_REGENERACAO) {
             tempoRegeneracao = 0;
-            if(escudo < ESCUDO_MAXIMO){
+            if (escudo < ESCUDO_MAXIMO) {
                 escudo++;
             }
         }
     }
 
-    private void montarModelo(){
-        Box nucleo = caixa(5.0);
-        modelo.getChildren().add(nucleo);
+    private void montarModelo() {
+        Box nucleo = caixa(30.0);
+        Cylinder anel = new Cylinder(45, 6);
+        anel.setMaterial(new PhongMaterial(CORES_NAVE[1]));
+        Cylinder antena = new Cylinder(2, 60);
+        antena.setMaterial(new PhongMaterial(CORES_NAVE[3]));
+        modelo.getChildren().addAll(anel, nucleo, antena);
     }
 
     private Box caixa(double lado) {
@@ -62,44 +70,52 @@ public class BaseEspacial extends EntidadeJogo{
         return p.normalize();
     }
 
-    public void receberDano(int quantidade){
-        if(quantidade <= 0 || estaDestruido()){
+    public boolean estaAoAlcance(Point3D posicaoNave) {
+        return posicao != null && posicaoNave.distance(posicao) <= RAIO_ATRACAGEM;
+    }
+
+    public void abastecer(NaveJogador nave) {
+        nave.recarregar();
+    }
+
+    public void receberDano(int quantidade) {
+        if (quantidade <= 0 || estaDestruido()) {
             return;
         }
         escudo = Math.max(0, escudo - quantidade);
-        if(escudo == 0){
+        if (escudo == 0) {
             vida--;
-            if(vida <= 0){
+            if (vida <= 0) {
                 desativar();
             }
         }
     }
 
-    public boolean estaDestruido(){
+    public boolean estaDestruido() {
         return vida <= 0;
     }
 
-    public int getVida(){
+    public int getVida() {
         return vida;
     }
 
-    public int getEscudo(){
+    public int getEscudo() {
         return escudo;
     }
 
-    public Point3D getPosicao(){
+    public Point3D getPosicao() {
         return posicao;
     }
 
-    public Group getModelo(){
+    public Group getModelo() {
         return modelo;
     }
 
-    public double getRaio(){
+    public double getRaio() {
         return RAIO_BASE;
     }
 
-    public void setPosicao(Point3D pos){
+    public void setPosicao(Point3D pos) {
         this.posicao = pos;
     }
 }

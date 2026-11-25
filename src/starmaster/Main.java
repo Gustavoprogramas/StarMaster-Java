@@ -1,15 +1,15 @@
 package starmaster;
 
-import com.almasb.fxgl.app.GameApplication;
-import com.almasb.fxgl.app.GameSettings;
 import static com.almasb.fxgl.dsl.FXGL.onKey;
 import static com.almasb.fxgl.dsl.FXGL.onKeyDown;
 import static com.almasb.fxgl.dsl.FXGL.tpf;
 
+import com.almasb.fxgl.app.GameApplication;
+import com.almasb.fxgl.app.GameSettings;
+
 import javafx.scene.input.KeyCode;
 import starmaster.gerenciadores.ModoTesteDeVoo;
 import starmaster.ui.FabricaDeCenas;
-
 
 public class Main extends GameApplication {
 
@@ -17,8 +17,7 @@ public class Main extends GameApplication {
     public static final int ALTURA = 600;
 
     private static ModoDeJogo modo = ModoDeJogo.TESTE_DE_VOO;
-    private ModoTesteDeVoo testeDeVoo;
-    
+    private ModoTesteDeVoo jogo;
 
     public static void setModo(ModoDeJogo novoModo) {
         modo = novoModo;
@@ -30,80 +29,77 @@ public class Main extends GameApplication {
         settings.setVersion("0.1");
         settings.setWidth(LARGURA);
         settings.setHeight(ALTURA);
-        settings.set3D(true);                         
-        settings.setMainMenuEnabled(true);            
-        settings.setGameMenuEnabled(true);            
-        settings.setSceneFactory(new FabricaDeCenas()); // troca o menu padrão do FXGL pelo nosso
+        settings.set3D(true);
+        settings.setMainMenuEnabled(true);
+        settings.setGameMenuEnabled(true);
+        settings.setSceneFactory(new FabricaDeCenas());
         settings.setIntroEnabled(false);
     }
 
     @Override
     protected void initInput() {
         onKey(KeyCode.LEFT, () -> {
-            if (testeDeVoo != null) {
-                testeDeVoo.girar(-1, tpf());
+            if (jogo != null) {
+                jogo.girar(-1, tpf());
             }
         });
         onKey(KeyCode.RIGHT, () -> {
-            if (testeDeVoo != null) {
-                testeDeVoo.girar(1, tpf());
+            if (jogo != null) {
+                jogo.girar(1, tpf());
             }
         });
         onKey(KeyCode.UP, () -> {
-            if (testeDeVoo != null) {
-                testeDeVoo.inclinar(1, tpf());
+            if (jogo != null) {
+                jogo.inclinar(1, tpf());
             }
         });
         onKey(KeyCode.DOWN, () -> {
-            if (testeDeVoo != null) {
-                testeDeVoo.inclinar(-1, tpf());
+            if (jogo != null) {
+                jogo.inclinar(-1, tpf());
+            }
+        });
+        onKey(KeyCode.W, () -> {
+            if (jogo != null) {
+                jogo.ajustarVelocidade(1, tpf());
+            }
+        });
+        onKey(KeyCode.S, () -> {
+            if (jogo != null) {
+                jogo.ajustarVelocidade(-1, tpf());
             }
         });
         onKey(KeyCode.SPACE, () -> {
-            if (testeDeVoo != null) {
-                testeDeVoo.atirar();
+            if (jogo != null) {
+                jogo.atirar();
             }
         });
-        onKeyDown(KeyCode.H, () -> {
-            if (testeDeVoo != null) {
-                testeDeVoo.simularDano();
+        onKeyDown(KeyCode.Q, () -> {
+            if (jogo != null) {
+                jogo.alternarAtracagem();
             }
         });
-        onKeyDown(KeyCode.R, () -> {
-            if (testeDeVoo != null) {
-                testeDeVoo.recarregar();
+        onKeyDown(KeyCode.M, () -> {
+            if (jogo != null) {
+                jogo.alternarMapa();
             }
         });
-         onKeyDown(KeyCode.M, () -> {
-            if (testeDeVoo != null) {
-                testeDeVoo.alternarMapa();
-            }
-        });
-
-       
     }
 
     @Override
     protected void initGame() {
-        testeDeVoo = null;
-        if (modo == ModoDeJogo.TESTE_DE_VOO) {
-            testeDeVoo = new ModoTesteDeVoo();
-            testeDeVoo.iniciar();
-        }
-      
+        jogo = new ModoTesteDeVoo();
+        jogo.iniciar();
     }
 
     @Override
     protected void initUI() {
-        if (testeDeVoo != null) {
-            testeDeVoo.criarHud();
-        }
+        jogo.criarHud();
     }
 
     @Override
     protected void onUpdate(double tpf) {
-        if (testeDeVoo != null) {
-            testeDeVoo.atualizar(tpf);
+        if (jogo != null) {
+            jogo.atualizar(tpf);
         }
     }
 
