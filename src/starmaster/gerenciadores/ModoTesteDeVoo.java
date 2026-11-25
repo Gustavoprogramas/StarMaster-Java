@@ -1,14 +1,15 @@
 package starmaster.gerenciadores;
 
-import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
-import static com.almasb.fxgl.dsl.FXGL.getGameScene;
-import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import com.almasb.fxgl.app.scene.Camera3D;
+import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
+import static com.almasb.fxgl.dsl.FXGL.getGameScene;
+import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.components.TransformComponent;
 
@@ -51,12 +52,15 @@ public class ModoTesteDeVoo {
     private static final double RAIO_INIMIGO = 8;
     private static final int DANO_TIRO_INIMIGO = 10;
 
+
+
     private final NaveJogador nave = new NaveJogador();
     private final List<Entity> estrelas = new ArrayList<>();
     private final Random aleatorio = new Random();
     private final List<BaseEspacial> bases = new ArrayList<>();
     private final List<Entity> naveInimigas = new ArrayList<>();
     private final List<NaveInimiga> inimigos = new ArrayList<>();
+    private final Map<Setor, Integer> inimigosRestantes = new HashMap<>(); // Criando a hash map para contar quantos inimigos restaram no setor ao sair do mesmo.
     private Camera3D camera;
     private HudTesteDeVoo hud;
     private boolean canhaoEsquerdo;
@@ -186,10 +190,12 @@ public class ModoTesteDeVoo {
         Point3D pos = camera.getTransform().getPosition3D();
         int linhaNave = (int) Math.floor(pos.getX() / GerenciadorMapa.TAMANHO_SETOR);
         int colunaNave = (int) Math.floor(pos.getZ() / GerenciadorMapa.TAMANHO_SETOR);
+        
         boolean teleporte = linhaNave != setor.getLinha() || colunaNave != setor.getColuna();
 
         cancelarAtracagem();
         removerInimigos();
+        
 
         if (teleporte) {
             camera.getTransform().setPosition3D(
@@ -211,13 +217,16 @@ public class ModoTesteDeVoo {
         tempoProximoMeteoro = 1.0;
 
         if (setor.getTipo() == TipoDeSetor.INIMIGO) {
+            
             criarInimigos(setor);
         }
     }
 
     private void criarInimigos(Setor setor) {
+
         Point3D centro = gerenciadorMapa.centroDoSetor(setor.getLinha(), setor.getColuna());
-        for (int i = 0; i < INIMIGOS_POR_SETOR; i++) {
+        int quantidade = inimigosRestantes.getOrDefault(setor, INIMIGOS_POR_SETOR); //getOrDefault devolve quantos inimigos sobraram no setor
+        for (int i = 0; i < quantidade; i++) {
             Point3D posicao = centro.add(
                     entre(-ESPALHAR_INIMIGOS, ESPALHAR_INIMIGOS),
                     entre(-60, 60),
@@ -493,6 +502,8 @@ public class ModoTesteDeVoo {
                         naveInimigas.remove(i);
                         inimigos.remove(i);
                         abates++;
+                        inimigosRestantes.put(gerenciadorMapa.getSetorAtual(), inimigos.size()); //toda vez que um inimigo morre, isso anota quantos
+                        //sobraram neste setor
                     } else {
                         Explosao.criar(pontoDoAcerto, 1.5);
                     }
